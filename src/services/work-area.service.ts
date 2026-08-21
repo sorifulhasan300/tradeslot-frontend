@@ -7,6 +7,10 @@ export const workAreaService = {
     return response.data;
   },
 
+  async createWorkArea(dto: CreateWorkAreaDto): Promise<ApiResponse<DailyWorkArea>> {
+    return this.upsertWorkArea(dto);
+  },
+
   async getWorkArea(traderId: string, date?: string): Promise<ApiResponse<DailyWorkArea>> {
     const response = await apiClient.get<ApiResponse<DailyWorkArea>>(`/work-area/${traderId}`, {
       params: { date },
