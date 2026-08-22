@@ -48,7 +48,18 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push(redirectPath);
+        const loggedInUser = useAuthStore.getState().user;
+        const explicitRedirect = redirectTo || searchParams.get('redirect');
+        
+        let targetPath = explicitRedirect;
+        if (!targetPath) {
+          if (loggedInUser?.role === 'CUSTOMER') {
+            targetPath = '/customer/dashboard';
+          } else {
+            targetPath = '/dashboard';
+          }
+        }
+        router.push(targetPath);
       }
     } else {
       toast.error('Authentication Failed', {

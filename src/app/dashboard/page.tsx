@@ -1,18 +1,50 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useAuthStore } from '@/store/useAuthStore';
 import { Header } from '@/components/shared/Header';
 import { WorkAreaCard } from '@/components/dashboard/WorkAreaCard';
 import { StripeConnectCard } from '@/components/dashboard/StripeConnectCard';
 import { BookingScheduleList } from '@/components/dashboard/BookingScheduleList';
+import { CustomerDashboard } from '@/components/dashboard/CustomerDashboard';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Calendar, ArrowRight } from 'lucide-react';
+import { Sparkles, Calendar, ArrowRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-export const metadata = {
-  title: 'Trader Dashboard - TradeSlot',
-  description: 'Manage daily operating work areas, Stripe Connect payouts, and schedule timelines.',
-};
-
 export default function DashboardPage() {
-  const traderId = 'trader-123'; // Default demo trader ID
+  const { user, checkAuth } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    checkAuth();
+  }, [checkAuth]);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </main>
+      </div>
+    );
+  }
+
+  // Role Guard: If logged-in user is a CUSTOMER, render Customer Dashboard view
+  if (user?.role === 'CUSTOMER') {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
+        <main className="flex-1 container mx-auto px-4 sm:px-6 py-8 space-y-8 max-w-7xl">
+          <CustomerDashboard />
+        </main>
+      </div>
+    );
+  }
+
+  // Otherwise (TRADER role or default fallback), render existing Trader Dashboard view
+  const traderId = user?.id || 'trader-123';
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -49,13 +81,13 @@ export default function DashboardPage() {
 
         {/* 2-Column Responsive Dashboard Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: Work Zone & Stripe Status (1 Col on LG) */}
+          {/* Left Column: Work Zone & Stripe Status */}
           <div className="lg:col-span-1 space-y-6">
             <WorkAreaCard traderId={traderId} />
             <StripeConnectCard traderId={traderId} />
           </div>
 
-          {/* Right Column: Main Booking Schedule & Travel Buffer List (2 Cols on LG) */}
+          {/* Right Column: Main Booking Schedule & Travel Buffer List */}
           <div className="lg:col-span-2">
             <BookingScheduleList traderId={traderId} />
           </div>

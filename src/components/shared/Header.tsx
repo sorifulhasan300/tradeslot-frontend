@@ -6,6 +6,7 @@ import { Wrench, LayoutDashboard, CalendarCheck, Bot, ShieldCheck, LogIn, LogOut
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuthStore } from '@/store/useAuthStore';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 
 export function Header() {
   const pathname = usePathname();
@@ -17,14 +18,32 @@ export function Header() {
     router.push('/login');
   };
 
-  const navItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { label: 'Customer Booking', href: '/book/trader-123', icon: CalendarCheck },
-    { label: 'WhatsApp Simulator', href: '/simulator', icon: Bot },
-  ];
+  const getNavItems = () => {
+    if (isAuthenticated && user?.role === 'CUSTOMER') {
+      return [
+        { label: 'My Bookings', href: '/customer/dashboard', icon: CalendarCheck },
+        { label: 'Book a Trader', href: '/book/trader-123', icon: CalendarCheck },
+        { label: 'WhatsApp Simulator', href: '/simulator', icon: Bot },
+      ];
+    }
+    if (isAuthenticated && user?.role === 'TRADER') {
+      return [
+        { label: 'Trader Portal', href: '/dashboard', icon: LayoutDashboard },
+        { label: 'Customer Booking', href: '/book/trader-123', icon: CalendarCheck },
+        { label: 'WhatsApp Simulator', href: '/simulator', icon: Bot },
+      ];
+    }
+    return [
+      { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { label: 'Customer Booking', href: '/book/trader-123', icon: CalendarCheck },
+      { label: 'WhatsApp Simulator', href: '/simulator', icon: Bot },
+    ];
+  };
+
+  const navItems = getNavItems();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-md transition-colors duration-200">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-primary">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/20">
@@ -41,7 +60,7 @@ export function Header() {
         <nav className="flex items-center gap-1 sm:gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || (item.href === '/customer/dashboard' && pathname === '/dashboard');
             return (
               <Link key={item.href} href={item.href}>
                 <Button
@@ -59,7 +78,8 @@ export function Header() {
           })}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle />
           {isAuthenticated && user ? (
             <div className="flex items-center gap-2">
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/60 bg-muted/30 text-xs">
