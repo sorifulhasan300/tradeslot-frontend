@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, MapPin, Star, ShieldCheck, Clock, ArrowRight, Sparkles, UserX } from 'lucide-react';
+import { Search, MapPin, Star, ShieldCheck, Clock, ArrowRight, Sparkles, UserX, Mail, Phone } from 'lucide-react';
 
 export default function FindAndBookPage() {
   const [query, setQuery] = useState('');
@@ -26,12 +26,17 @@ export default function FindAndBookPage() {
   // Map backend trader profiles/users to UI-friendly structure
   const traders = Array.isArray(rawTraders)
     ? rawTraders.map((t: any, index: number) => {
-        const id = t.id || t.userId || `trader-${index}`;
+        const id = t.id || t.userId || t.user?.id || `trader-${index}`;
         const name = t.displayName || t.user?.name || t.name || 'Verified Trader';
         const trade = t.bio || t.user?.role || 'Qualified Trade Specialist';
+        const email = t.user?.email || t.email;
+        const phone = t.user?.phone || t.phone;
         const rating = t.rating || 4.9;
         const reviews = t.reviewsCount || 48;
-        const area = t.dailyWorkAreas?.[0]?.zoneName || t.postcodeOrCity || 'London Metro Area';
+        const area =
+          t.dailyWorkAreas?.map((w: any) => w.zoneName).filter(Boolean).join(', ') ||
+          t.postcodeOrCity ||
+          'London Metro Area';
         const distance = t.distance || '2.5 miles away';
         const startingPrice = t.hourlyRate || t.startingPrice || 50;
         const availableSlot = t.nextSlot || 'Today @ 14:30';
@@ -40,6 +45,8 @@ export default function FindAndBookPage() {
           id,
           name,
           trade,
+          email,
+          phone,
           rating,
           reviews,
           area,
@@ -52,8 +59,9 @@ export default function FindAndBookPage() {
 
   const filteredTraders = traders.filter(
     (t) =>
-      t.name.toLowerCase().includes(query.toLowerCase()) ||
-      t.trade.toLowerCase().includes(query.toLowerCase()) ||
+      (t.name.toLowerCase().includes(query.toLowerCase()) ||
+        t.trade.toLowerCase().includes(query.toLowerCase()) ||
+        t.area.toLowerCase().includes(query.toLowerCase())) &&
       t.area.toLowerCase().includes(location.toLowerCase())
   );
 
@@ -185,6 +193,20 @@ export default function FindAndBookPage() {
                       </span>
                     </div>
 
+                    {trader.email && (
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
+                        <span className="truncate">{trader.email}</span>
+                      </div>
+                    )}
+
+                    {trader.phone && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                        <span>{trader.phone}</span>
+                      </div>
+                    )}
+
                     <div className="flex items-center gap-2">
                       <Clock className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                       <span className="text-emerald-400 font-medium">Next slot: {trader.availableSlot}</span>
@@ -219,3 +241,4 @@ export default function FindAndBookPage() {
     </div>
   );
 }
+
