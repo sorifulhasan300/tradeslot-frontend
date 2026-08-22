@@ -41,11 +41,35 @@ export async function createBookingAction(payload: BookingRequestSchemaType): Pr
       };
     }
 
+    const channelMap: Record<string, string> = {
+      DIRECT: 'WEB_CHAT',
+      WEB_CHATBOT: 'WEB_CHATBOT',
+      WHATSAPP: 'WHATSAPP',
+    };
+
+    const startDate = new Date(validated.data.startTime);
+    const endDate = validated.data.endTime
+      ? new Date(validated.data.endTime)
+      : new Date(startDate.getTime() + 2 * 3600 * 1000);
+
+    const backendPayload = {
+      traderId: validated.data.traderId,
+      customerName: validated.data.customerName,
+      customerPhone: validated.data.customerPhone,
+      customerEmail: validated.data.customerEmail || undefined,
+      originChannel: channelMap[validated.data.channel] || 'WEB_CHATBOT',
+      startTime: startDate.toISOString(),
+      endTime: endDate.toISOString(),
+      flatBookingFee: Math.round(Number(validated.data.feeAmount || 0)),
+      jobAmount: 0,
+      bufferMinutes: 30,
+    };
+
     const headers = await getAuthHeader();
     const res = await fetch(`${BACKEND_URL}/bookings`, {
       method: 'POST',
       headers,
-      body: JSON.stringify(validated.data),
+      body: JSON.stringify(backendPayload),
       cache: 'no-store',
     });
 

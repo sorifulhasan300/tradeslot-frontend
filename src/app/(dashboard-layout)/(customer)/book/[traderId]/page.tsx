@@ -231,7 +231,10 @@ export default function CustomerTraderBookingPage() {
       postcode,
       serviceDescription,
       startTime: selectedSlot.startTime,
+      endTime: selectedSlot.endTime,
       feeAmount,
+      flatBookingFee: feeAmount,
+      originChannel: 'WEB_CHATBOT',
     });
   };
 

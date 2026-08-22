@@ -84,11 +84,17 @@ export interface CreateBookingDto {
   customerName: string;
   customerPhone: string;
   customerEmail?: string;
-  address: string;
-  postcode: string;
-  serviceDescription: string;
+  address?: string;
+  postcode?: string;
+  serviceDescription?: string;
   startTime: string;
-  feeAmount: number;
+  endTime?: string;
+  feeAmount?: number;
+  flatBookingFee?: number;
+  originChannel?: 'WHATSAPP' | 'WEB_CHAT' | 'WEB_CHATBOT' | 'SMS' | 'TELEGRAM' | 'EMAIL' | 'VOICE';
+  channel?: string;
+  bufferMinutes?: number;
+  jobAmount?: number;
 }
 
 export interface ChatbotMessageDto {

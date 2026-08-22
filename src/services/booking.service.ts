@@ -30,7 +30,31 @@ export const bookingService = {
   },
 
   async createBooking(dto: CreateBookingDto): Promise<ApiResponse<Booking>> {
-    const response = await apiClient.post<ApiResponse<Booking>>('/bookings', dto);
+    const channelMap: Record<string, string> = {
+      DIRECT: 'WEB_CHAT',
+      WEB_CHATBOT: 'WEB_CHATBOT',
+      WHATSAPP: 'WHATSAPP',
+    };
+
+    const startDate = new Date(dto.startTime);
+    const endDate = dto.endTime
+      ? new Date(dto.endTime)
+      : new Date(startDate.getTime() + 2 * 3600 * 1000);
+
+    const payload = {
+      traderId: dto.traderId,
+      customerName: dto.customerName,
+      customerPhone: dto.customerPhone,
+      customerEmail: dto.customerEmail || undefined,
+      originChannel: dto.originChannel || channelMap[dto.channel || ''] || 'WEB_CHATBOT',
+      startTime: startDate.toISOString(),
+      endTime: endDate.toISOString(),
+      flatBookingFee: Math.round(Number(dto.flatBookingFee ?? dto.feeAmount ?? 0)),
+      jobAmount: Math.round(Number(dto.jobAmount ?? 0)),
+      bufferMinutes: dto.bufferMinutes ?? 30,
+    };
+
+    const response = await apiClient.post<ApiResponse<Booking>>('/bookings', payload);
     return response.data;
   },
 

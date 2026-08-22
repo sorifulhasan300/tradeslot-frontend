@@ -35,13 +35,13 @@ export function WorkAreaCard({ traderId, initialWorkArea }: WorkAreaCardProps) {
         toast.success(res.message || 'Work area updated successfully!');
         setCurrentWorkArea(res.data);
       } else {
-        toast.success('Work area updated successfully!');
+        toast.success(res.message || 'Work area updated successfully!');
       }
       queryClient.invalidateQueries({ queryKey: ['work-area', traderId] });
       queryClient.invalidateQueries({ queryKey: ['work-area'] });
     },
-    onError: (error: any) => {
-      toast.error(error?.message || 'Failed to update work area. Please check parameters.');
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to update work area. Please check parameters.');
     },
   });
 
