@@ -1,13 +1,26 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { CreditCard, ExternalLink, ShieldAlert, CheckCircle2, Loader2, ArrowUpRight } from 'lucide-react';
-import { toast } from 'sonner';
-import { paymentService } from '@/services/payment.service';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  CreditCard,
+  ExternalLink,
+  ShieldAlert,
+  CheckCircle2,
+  Loader2,
+  ArrowUpRight,
+} from "lucide-react";
+import { toast } from "sonner";
+import { paymentService } from "@/services/payment.service";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface StripeConnectCardProps {
   traderId: string;
@@ -17,8 +30,13 @@ export function StripeConnectCard({ traderId }: StripeConnectCardProps) {
   const [isOpeningDashboard, setIsOpeningDashboard] = useState(false);
 
   // Fetch account status
-  const { data: statusData, isLoading, isError, refetch } = useQuery({
-    queryKey: ['stripeStatus', traderId],
+  const {
+    data: statusData,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ["stripeStatus", traderId],
     queryFn: () => paymentService.getAccountStatus(traderId),
     retry: 1,
   });
@@ -30,14 +48,14 @@ export function StripeConnectCard({ traderId }: StripeConnectCardProps) {
     mutationFn: () => paymentService.onboardStripe(traderId),
     onSuccess: (res) => {
       if (res.data?.url) {
-        toast.info('Redirecting to Stripe Express Onboarding...');
+        toast.info("Redirecting to Stripe Express Onboarding...");
         window.location.href = res.data.url;
       } else {
-        toast.error('Failed to retrieve onboarding URL');
+        toast.error("Failed to retrieve onboarding URL");
       }
     },
     onError: (err: any) => {
-      toast.error(err.message || 'Error creating Stripe onboarding session');
+      toast.error(err.message || "Error creating Stripe onboarding session");
     },
   });
 
@@ -46,12 +64,12 @@ export function StripeConnectCard({ traderId }: StripeConnectCardProps) {
     try {
       const res = await paymentService.getExpressDashboardUrl(traderId);
       if (res.data?.url) {
-        window.open(res.data.url, '_blank');
+        window.open(res.data.url, "_blank");
       } else {
-        toast.error('Dashboard URL unavailable');
+        toast.error("Dashboard URL unavailable");
       }
     } catch (err: any) {
-      toast.error(err.message || 'Could not open Stripe Express dashboard');
+      toast.error(err.message || "Could not open Stripe Express dashboard");
     } finally {
       setIsOpeningDashboard(false);
     }
@@ -70,7 +88,9 @@ export function StripeConnectCard({ traderId }: StripeConnectCardProps) {
               <CreditCard className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-lg font-semibold">Stripe Payouts & Connect</CardTitle>
+              <CardTitle className="text-lg font-semibold">
+                Stripe Payouts & Connect
+              </CardTitle>
               <CardDescription className="text-xs text-muted-foreground">
                 Manage destination payments, payouts, and card processing
               </CardDescription>
@@ -78,14 +98,19 @@ export function StripeConnectCard({ traderId }: StripeConnectCardProps) {
           </div>
 
           {isLoading ? (
-            <Badge variant="outline" className="animate-pulse">Checking...</Badge>
+            <Badge variant="outline" className="animate-pulse">
+              Checking...
+            </Badge>
           ) : isOnboarded && chargesEnabled ? (
             <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 gap-1">
               <CheckCircle2 className="h-3 w-3" />
               Payouts Active
             </Badge>
           ) : (
-            <Badge variant="destructive" className="bg-amber-500/15 text-amber-400 border-amber-500/30 gap-1">
+            <Badge
+              variant="destructive"
+              className="bg-amber-500/15 text-amber-400 border-amber-500/30 gap-1"
+            >
               <ShieldAlert className="h-3 w-3" />
               Setup Required
             </Badge>
@@ -99,13 +124,13 @@ export function StripeConnectCard({ traderId }: StripeConnectCardProps) {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Account ID:</span>
               <span className="text-xs font-mono text-muted-foreground">
-                {accountStatus?.accountId || 'acct_not_connected'}
+                {accountStatus?.accountId || "acct_not_connected"}
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
               {isOnboarded
-                ? 'Your Stripe Connect account is linked. Bookings will automatically route payouts to your bank.'
-                : 'Complete your Stripe onboarding to accept customer deposits and receive automated payouts.'}
+                ? "Your Stripe Connect account is linked. Bookings will automatically route payouts to your bank."
+                : "Complete your Stripe onboarding to accept customer deposits and receive automated payouts."}
             </p>
           </div>
 
