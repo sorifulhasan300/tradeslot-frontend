@@ -92,6 +92,23 @@ export interface StripeAccountStatus {
   detailsSubmitted: boolean;
 }
 
+export type PaymentStatus = 'PENDING' | 'SUCCEEDED' | 'FAILED' | 'PAID' | string;
+
+export interface Payment {
+  id: string;
+  bookingId: string;
+  stripePaymentIntentId: string;
+  amountTotal: number;
+  platformFee: number;
+  traderPayoutAmount: number;
+  status: PaymentStatus;
+  stripeTransferId?: string | null;
+  stripeChargeId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  booking?: Booking;
+}
+
 export interface CreateWorkAreaDto {
   traderId: string;
   postcodeOrCity: string;

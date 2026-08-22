@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
-import { ApiResponse, StripeAccountStatus } from '@/types/api.types';
+import { ApiResponse, StripeAccountStatus, Payment } from '@/types/api.types';
 
 const BACKEND_URL = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
@@ -146,6 +146,37 @@ export async function createPaymentIntentAction(
       success: false,
       statusCode: 500,
       message: error?.message || 'Server error creating Stripe payment intent',
+    };
+  }
+}
+
+export async function getAllPaymentsServer(params?: Record<string, any>): Promise<ApiResponse<Payment[]>> {
+  try {
+    const headers = await getAuthHeader();
+    const query = new URLSearchParams(params).toString();
+    const url = `${BACKEND_URL}/payments${query ? `?${query}` : ''}`;
+    const res = await fetch(url, {
+      method: 'GET',
+      headers,
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      return {
+        success: false,
+        statusCode: res.status,
+        message: 'Could not retrieve payments',
+        data: [],
+      };
+    }
+
+    return await safeJsonParse(res);
+  } catch (error: any) {
+    return {
+      success: false,
+      statusCode: 500,
+      message: error?.message || 'Error fetching payments from server',
+      data: [],
     };
   }
 }

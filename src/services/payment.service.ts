@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api-client";
-import { ApiResponse, StripeAccountStatus } from "@/types/api.types";
+import { ApiResponse, StripeAccountStatus, Payment } from "@/types/api.types";
 
 export const paymentService = {
   /**
@@ -56,6 +56,18 @@ export const paymentService = {
     const response = await apiClient.get<ApiResponse<StripeAccountStatus>>(
       `/payments/status/${traderId}`,
     );
+    return response.data;
+  },
+
+  /**
+   * Fetch all payments / transaction history
+   */
+  async getAllPayments(
+    params?: Record<string, any>
+  ): Promise<ApiResponse<Payment[]>> {
+    const response = await apiClient.get<ApiResponse<Payment[]>>("/payments", {
+      params,
+    });
     return response.data;
   },
 

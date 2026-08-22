@@ -1,21 +1,30 @@
 import React from 'react';
 import { getCurrentUserServer } from '@/app/actions/auth.actions';
-import { getStripeStatusServer } from '@/app/actions/payment.actions';
-import { StripeConnectCard } from '@/components/dashboard/StripeConnectCard';
+import { getStripeStatusServer, getAllPaymentsServer } from '@/app/actions/payment.actions';
+import { TraderPayoutsOverview } from '@/components/dashboard/TraderPayoutsOverview';
 
-export const revalidate = 0;
+export const revalidate = 0; // Dynamic server component
 
 export default async function TraderPayoutsPage() {
   const user = await getCurrentUserServer();
   const traderId = user?.id || 'trader-123';
 
-  // Server-side read operation
-  const stripeStatusRes = await getStripeStatusServer(traderId);
+  // Server-side parallel data fetching (BFF pattern)
+  const [stripeStatusRes, paymentsRes] = await Promise.all([
+    getStripeStatusServer(traderId),
+    getAllPaymentsServer(),
+  ]);
+
   const initialStripeStatus = stripeStatusRes?.data || null;
+  const initialPayments = paymentsRes?.data || [];
 
   return (
-    <div className="max-w-4xl space-y-6">
-      <StripeConnectCard traderId={traderId} initialAccountStatus={initialStripeStatus} />
+    <div className="space-y-6">
+      <TraderPayoutsOverview
+        traderId={traderId}
+        initialAccountStatus={initialStripeStatus}
+        initialPayments={initialPayments}
+      />
     </div>
   );
 }
