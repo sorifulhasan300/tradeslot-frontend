@@ -4,20 +4,17 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
+import {
+  TRADER_NAV_ITEMS,
+  CUSTOMER_NAV_ITEMS,
+  getDefaultRedirectForRole,
+} from '@/config/routes.config';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  LayoutDashboard,
-  Calendar,
-  MapPin,
-  CreditCard,
-  CalendarCheck,
-  Search,
-  HelpCircle,
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
   User as UserIcon,
   Wrench,
 } from 'lucide-react';
@@ -26,25 +23,6 @@ interface SidebarProps {
   onNavClick?: () => void;
 }
 
-interface NavItem {
-  label: string;
-  href: string;
-  icon: React.ElementType;
-}
-
-const TRADER_LINKS: NavItem[] = [
-  { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Bookings & Schedule', href: '/dashboard/bookings', icon: Calendar },
-  { label: 'Work Zone Coverage', href: '/dashboard/work-area', icon: MapPin },
-  { label: 'Payouts & Stripe', href: '/dashboard/payouts', icon: CreditCard },
-];
-
-const CUSTOMER_LINKS: NavItem[] = [
-  { label: 'My Bookings', href: '/customer/dashboard', icon: CalendarCheck },
-  { label: 'Find & Book Trader', href: '/book', icon: Search },
-  { label: 'Support / Simulator', href: '/simulator', icon: HelpCircle },
-];
-
 export function Sidebar({ onNavClick }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -52,11 +30,12 @@ export function Sidebar({ onNavClick }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const isCustomer = user?.role === 'CUSTOMER';
-  const links = isCustomer ? CUSTOMER_LINKS : TRADER_LINKS;
+  const links = isCustomer ? CUSTOMER_NAV_ITEMS : TRADER_NAV_ITEMS;
+  const homeHref = getDefaultRedirectForRole(user?.role);
 
   const handleLogout = async () => {
     await logout();
-    router.push('/login');
+    window.location.href = '/login';
   };
 
   const isActive = (href: string) => {
@@ -74,7 +53,7 @@ export function Sidebar({ onNavClick }: SidebarProps) {
     >
       {/* Top Header: Logo & Badge */}
       <div className="flex items-center justify-between h-16 px-4 border-b border-border/40 shrink-0">
-        <Link href={isCustomer ? '/customer/dashboard' : '/dashboard'} onClick={onNavClick} className="flex items-center gap-3 overflow-hidden">
+        <Link href={homeHref} onClick={onNavClick} className="flex items-center gap-3 overflow-hidden">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-indigo-500/20">
             <Wrench className="h-5 w-5" />
           </div>

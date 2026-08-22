@@ -262,6 +262,7 @@ export async function logoutAction(): Promise<ApiResponse<null>> {
 
     cookieStore.delete('tradeslot_token');
     cookieStore.delete('tradeslot_user');
+    cookieStore.delete('better-auth.session_token');
 
     return {
       success: true,
@@ -273,6 +274,7 @@ export async function logoutAction(): Promise<ApiResponse<null>> {
     const cookieStore = await cookies();
     cookieStore.delete('tradeslot_token');
     cookieStore.delete('tradeslot_user');
+    cookieStore.delete('better-auth.session_token');
     return {
       success: true,
       statusCode: 200,

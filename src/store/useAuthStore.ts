@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { getCookie, removeCookie, setCookie, TOKEN_KEY, USER_KEY } from '@/lib/cookies';
 import authService from '@/services/auth.service';
+import { logoutAction } from '@/app/actions/auth.actions';
 import { ApiCustomError } from '@/lib/api-client';
 import { LoginPayload, RegisterPayload, User, VerifyOtpPayload } from '@/types/auth.types';
 
@@ -47,7 +48,7 @@ const initialUser = getInitialUser();
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: initialUser,
   token: initialToken,
-  isAuthenticated: Boolean(initialToken || initialUser),
+  isAuthenticated: Boolean(initialToken && initialUser),
   isLoading: false,
   error: null,
   requiresOtpVerification: false,
@@ -193,12 +194,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     set({ isLoading: true });
     try {
+      await logoutAction();
+    } catch (e) {
+      // Ignore server action error
+    }
+
+    try {
       await authService.logout();
     } catch (e) {
       // Ignore logout error and clean local state
     } finally {
       removeCookie(TOKEN_KEY);
       removeCookie(USER_KEY);
+      removeCookie('better-auth.session_token');
       if (typeof window !== 'undefined') {
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(USER_KEY);
@@ -216,6 +224,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   checkAuth: async () => {
+    const existingUser = get().user || getInitialUser();
+    const existingToken = get().token || getInitialToken();
+
+    // If we already have stored user session, confirm authentication state immediately
+    if (existingUser) {
+      set({
+        user: existingUser,
+        token: existingToken || 'authenticated-session-token',
+        isAuthenticated: true,
+        isLoading: false,
+      });
+      return;
+    }
+
     set({ isLoading: true });
     try {
       const res = await authService.getSession();
@@ -226,16 +248,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isLoading: false,
         });
       } else {
-        removeCookie(TOKEN_KEY);
-        removeCookie(USER_KEY);
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem(TOKEN_KEY);
-          localStorage.removeItem(USER_KEY);
-        }
         set({
-          user: null,
-          token: null,
-          isAuthenticated: false,
           isLoading: false,
         });
       }

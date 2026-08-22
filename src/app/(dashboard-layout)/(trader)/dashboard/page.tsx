@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { getCurrentUserServer } from '@/app/actions/auth.actions';
 import { getWorkAreaServer } from '@/app/actions/work-area.actions';
 import { getStripeStatusServer } from '@/app/actions/payment.actions';
@@ -23,6 +24,12 @@ export const revalidate = 0; // Real-time dynamic page
 
 export default async function TraderDashboardPage() {
   const user = await getCurrentUserServer();
+
+  // Server-side role guard: CUSTOMER cannot access trader dashboard
+  if (user?.role === 'CUSTOMER') {
+    redirect('/customer/dashboard');
+  }
+
   const traderId = user?.id || 'trader-123';
 
   // Server-side parallel data fetching (BFF pattern)

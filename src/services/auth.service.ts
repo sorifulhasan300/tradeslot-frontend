@@ -179,6 +179,13 @@ export const authService = {
       data: null,
     };
   },
+  /**
+   * Fetch list of all registered traders
+   */
+  async getTraders(): Promise<ApiResponse<any[]>> {
+    const response = await apiClient.get<ApiResponse<any[]>>('/auth/traders');
+    return response.data;
+  },
 };
 
 export default authService;

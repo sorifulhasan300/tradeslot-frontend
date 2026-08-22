@@ -14,9 +14,10 @@ export interface GetBookingsQueryParams {
 }
 
 export const bookingService = {
-  async getTraderBookings(params: GetBookingsQueryParams): Promise<ApiResponse<Booking[]>> {
+  async getTraderBookings(paramsOrId: string | GetBookingsQueryParams): Promise<ApiResponse<Booking[]>> {
+    const params = typeof paramsOrId === 'string' ? { traderId: paramsOrId } : paramsOrId;
     const response = await apiClient.get<ApiResponse<Booking[]>>(`/bookings/trader/${params.traderId}`, {
-      params,
+      params: typeof paramsOrId === 'string' ? {} : params,
     });
     return response.data;
   },

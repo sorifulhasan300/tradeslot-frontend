@@ -1,26 +1,45 @@
-import Link from 'next/link';
-import { Header } from '@/components/shared/Header';
-import { LayoutDashboard, CalendarCheck, Bot, ShieldCheck, Zap, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import Link from "next/link";
+import { Header } from "@/components/shared/Header";
+import {
+  LayoutDashboard,
+  CalendarCheck,
+  Bot,
+  ShieldCheck,
+  Zap,
+  ArrowRight,
+  CheckCircle2,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
-
       <main className="flex-1 container mx-auto px-4 sm:px-6 py-12 max-w-6xl space-y-12">
         {/* Hero Section */}
         <div className="text-center space-y-4 max-w-3xl mx-auto py-8">
-          <Badge variant="outline" className="px-3 py-1 text-xs border-primary/40 text-primary bg-primary/10">
-            <Zap className="h-3.5 w-3.5 mr-1 fill-primary" /> Intelligent Booking & Scheduling Engine
+          <Badge
+            variant="outline"
+            className="px-3 py-1 text-xs border-primary/40 text-primary bg-primary/10"
+          >
+            <Zap className="h-3.5 w-3.5 mr-1 fill-primary" /> Intelligent
+            Booking & Scheduling Engine
           </Badge>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-foreground via-foreground/90 to-foreground/60 bg-clip-text text-transparent">
             TradeSlot Platform
           </h1>
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Multi-channel scheduling engine built for trade professionals. Features daily postcode operating zones, 30-minute travel buffer gaps, embedded Stripe Connect payouts, and multi-channel message intake.
+            Multi-channel scheduling engine built for trade professionals.
+            Features daily postcode operating zones, 30-minute travel buffer
+            gaps, embedded Stripe Connect payouts, and multi-channel message
+            intake.
           </p>
         </div>
 
@@ -36,7 +55,9 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-xl">1. Trader Dashboard</CardTitle>
                 <CardDescription>
-                  Configure daily operating radius, manage Stripe Connect payouts, and view schedule timelines with buffer gap indicators.
+                  Configure daily operating radius, manage Stripe Connect
+                  payouts, and view schedule timelines with buffer gap
+                  indicators.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2 text-xs text-muted-foreground">
@@ -74,7 +95,8 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-xl">2. Customer Booking</CardTitle>
                 <CardDescription>
-                  Interactive customer portal with web intake chatbot, real-time slot selection, and flat deposit checkout.
+                  Interactive customer portal with web intake chatbot, real-time
+                  slot selection, and flat deposit checkout.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2 text-xs text-muted-foreground">
@@ -112,7 +134,8 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-xl">3. WhatsApp Simulator</CardTitle>
                 <CardDescription>
-                  Test panel for simulating WhatsApp message webhooks (`/api/v1/messages/whatsapp`) and real-time database intake.
+                  Test panel for simulating WhatsApp message webhooks
+                  (`/api/v1/messages/whatsapp`) and real-time database intake.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2 text-xs text-muted-foreground">

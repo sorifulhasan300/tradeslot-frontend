@@ -2,15 +2,54 @@ import { apiClient } from "@/lib/api-client";
 import { ApiResponse, StripeAccountStatus } from "@/types/api.types";
 
 export const paymentService = {
-  async onboardStripe(
-    traderId: string,
-  ): Promise<ApiResponse<{ onboardingUrl: string; accountId: string }>> {
+  /**
+   * Onboard trader for Stripe payouts & Connect
+   */
+  async onboardTrader(
+    traderId?: string,
+  ): Promise<ApiResponse<{ onboardingUrl: string; accountId?: string }>> {
     const response = await apiClient.post<
-      ApiResponse<{ onboardingUrl: string; accountId: string }>
+      ApiResponse<{ onboardingUrl: string; accountId?: string }>
     >("/payments/onboard", { traderId });
     return response.data;
   },
 
+  async onboardStripe(
+    traderId: string,
+  ): Promise<ApiResponse<{ onboardingUrl: string; accountId?: string }>> {
+    return this.onboardTrader(traderId);
+  },
+
+  /**
+   * Get Stripe Express Dashboard URL for connected trader
+   */
+  async getStripeDashboard(
+    traderId?: string,
+  ): Promise<ApiResponse<{ dashboardUrl: string; url: string }>> {
+    const response = await apiClient.get<ApiResponse<{ url: string; dashboardUrl?: string }>>(
+      "/payments/dashboard",
+      { params: traderId ? { traderId } : {} }
+    );
+    
+    const url = response.data?.data?.url || response.data?.data?.dashboardUrl || "";
+    return {
+      ...response.data,
+      data: {
+        url,
+        dashboardUrl: url,
+      },
+    };
+  },
+
+  async getExpressDashboardUrl(
+    traderId: string,
+  ): Promise<ApiResponse<{ url: string; dashboardUrl: string }>> {
+    return this.getStripeDashboard(traderId);
+  },
+
+  /**
+   * Fetch trader Stripe account status
+   */
   async getAccountStatus(
     traderId: string,
   ): Promise<ApiResponse<StripeAccountStatus>> {
@@ -20,21 +59,18 @@ export const paymentService = {
     return response.data;
   },
 
-  async getExpressDashboardUrl(
-    traderId: string,
-  ): Promise<ApiResponse<{ url: string }>> {
-    const response = await apiClient.get<ApiResponse<{ url: string }>>(
-      `/payments/dashboard/${traderId}`,
-    );
-    return response.data;
-  },
-
+  /**
+   * Create Payment Intent for booking deposit/checkout
+   */
   async createPaymentIntent(
-    bookingId: string,
+    payload: string | { bookingId: string; amount?: number },
   ): Promise<ApiResponse<{ clientSecret: string; paymentIntentId: string }>> {
+    const body = typeof payload === "string" ? { bookingId: payload } : payload;
     const response = await apiClient.post<
       ApiResponse<{ clientSecret: string; paymentIntentId: string }>
-    >("/payments/create-intent", { bookingId });
+    >("/payments/create-intent", body);
     return response.data;
   },
 };
+
+export default paymentService;

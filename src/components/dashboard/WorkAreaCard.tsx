@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MapPin, Navigation, Compass, CheckCircle2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { upsertWorkAreaAction } from '@/app/actions/work-area.actions';
-import { DailyWorkArea } from '@/types/api.types';
+import { workAreaService } from '@/services/work-area.service';
+import { DailyWorkArea, CreateWorkAreaDto } from '@/types/api.types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,12 +19,31 @@ interface WorkAreaCardProps {
 
 export function WorkAreaCard({ traderId, initialWorkArea }: WorkAreaCardProps) {
   const today = new Date().toISOString().split('T')[0];
-  const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
 
   const [postcodeOrCity, setPostcodeOrCity] = useState(initialWorkArea?.postcodeOrCity || 'SW1A 1AA');
   const [radiusMiles, setRadiusMiles] = useState(initialWorkArea?.radiusMiles?.toString() || '15');
   const [selectedDate, setSelectedDate] = useState(initialWorkArea?.date?.split('T')[0] || today);
   const [currentWorkArea, setCurrentWorkArea] = useState<DailyWorkArea | null>(initialWorkArea || null);
+
+  // TanStack Query Mutation for setting trader work zone
+  const { mutate: setWorkArea, isPending } = useMutation({
+    mutationFn: (dto: CreateWorkAreaDto & { zoneName?: string }) =>
+      workAreaService.setWorkArea(dto),
+    onSuccess: (res) => {
+      if (res.success && res.data) {
+        toast.success(res.message || 'Work area updated successfully!');
+        setCurrentWorkArea(res.data);
+      } else {
+        toast.success('Work area updated successfully!');
+      }
+      queryClient.invalidateQueries({ queryKey: ['work-area', traderId] });
+      queryClient.invalidateQueries({ queryKey: ['work-area'] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || 'Failed to update work area. Please check parameters.');
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,20 +52,12 @@ export function WorkAreaCard({ traderId, initialWorkArea }: WorkAreaCardProps) {
       return;
     }
 
-    startTransition(async () => {
-      const res = await upsertWorkAreaAction({
-        traderId,
-        postcodeOrCity: postcodeOrCity.trim(),
-        radiusMiles: parseInt(radiusMiles, 10),
-        date: selectedDate,
-      });
-
-      if (res.success && res.data) {
-        toast.success(res.message || 'Work area updated successfully!');
-        setCurrentWorkArea(res.data);
-      } else {
-        toast.error(res.message || 'Failed to update work area');
-      }
+    setWorkArea({
+      traderId,
+      postcodeOrCity: postcodeOrCity.trim(),
+      radiusMiles: parseInt(radiusMiles, 10),
+      date: selectedDate,
+      zoneName: `${postcodeOrCity.trim()} (${radiusMiles} miles)`,
     });
   };
 
@@ -130,7 +142,9 @@ export function WorkAreaCard({ traderId, initialWorkArea }: WorkAreaCardProps) {
           <div className="flex items-center justify-between pt-2 border-t border-border/40">
             <div className="text-xs text-muted-foreground">
               {currentWorkArea ? (
-                <span>Current: <strong>{currentWorkArea.postcodeOrCity}</strong> ({currentWorkArea.radiusMiles} miles)</span>
+                <span>
+                  Current: <strong>{currentWorkArea.postcodeOrCity}</strong> ({currentWorkArea.radiusMiles} miles)
+                </span>
               ) : (
                 <span>No active work zone saved for this date</span>
               )}

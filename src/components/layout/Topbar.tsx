@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
+import { ROUTE_CONFIG, getDefaultRedirectForRole } from '@/config/routes.config';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -19,16 +19,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Menu, Bell, ChevronRight, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck } from 'lucide-react';
 
-const ROUTE_CONFIG: Record<string, { title: string; breadcrumbs: string[] }> = {
-  '/dashboard': { title: 'Trader Overview', breadcrumbs: ['Home', 'Dashboard', 'Overview'] },
-  '/dashboard/bookings': { title: 'Bookings & Schedule', breadcrumbs: ['Home', 'Dashboard', 'Bookings'] },
-  '/dashboard/work-area': { title: 'Work Zone Coverage', breadcrumbs: ['Home', 'Dashboard', 'Work Area'] },
-  '/dashboard/payouts': { title: 'Payouts & Stripe', breadcrumbs: ['Home', 'Dashboard', 'Payouts'] },
-  '/customer/dashboard': { title: 'My Bookings & Overview', breadcrumbs: ['Home', 'Customer', 'Dashboard'] },
-  '/book': { title: 'Find & Book Trader', breadcrumbs: ['Home', 'Customer', 'Book'] },
-  '/simulator': { title: 'Support & Webhook Simulator', breadcrumbs: ['Home', 'Simulator'] },
-};
-
 export function Topbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -41,10 +31,11 @@ export function Topbar() {
   };
 
   const isCustomer = user?.role === 'CUSTOMER';
+  const homeHref = getDefaultRedirectForRole(user?.role);
 
   const handleLogout = async () => {
     await logout();
-    router.push('/login');
+    window.location.href = '/login';
   };
 
   return (
@@ -135,7 +126,7 @@ export function Topbar() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => router.push(isCustomer ? '/customer/dashboard' : '/dashboard')}
+                  onClick={() => router.push(homeHref)}
                   className="cursor-pointer text-xs"
                 >
                   <LayoutDashboard className="h-3.5 w-3.5 mr-2 text-muted-foreground" />

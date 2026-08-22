@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CreditCard,
   ExternalLink,
@@ -10,7 +11,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { toast } from "sonner";
-import { onboardStripeAction, getExpressDashboardUrlAction } from "@/app/actions/payment.actions";
+import { paymentService } from "@/services/payment.service";
 import { StripeAccountStatus } from "@/types/api.types";
 import {
   Card,
@@ -28,37 +29,63 @@ interface StripeConnectCardProps {
 }
 
 export function StripeConnectCard({ traderId, initialAccountStatus }: StripeConnectCardProps) {
-  const [isPending, startTransition] = useTransition();
-  const [isOpeningDashboard, setIsOpeningDashboard] = useState(false);
-  const [accountStatus, setAccountStatus] = useState<StripeAccountStatus | null>(initialAccountStatus || null);
+  const queryClient = useQueryClient();
 
-  const handleConnectStripe = () => {
-    startTransition(async () => {
-      const res = await onboardStripeAction(traderId);
-      const targetUrl = res.data?.onboardingUrl;
+  // Query Stripe Account Status dynamically
+  const { data: statusRes } = useQuery({
+    queryKey: ['stripe-status', traderId],
+    queryFn: () => paymentService.getAccountStatus(traderId),
+    initialData: initialAccountStatus
+      ? { success: true, statusCode: 200, message: 'OK', data: initialAccountStatus }
+      : undefined,
+  });
+
+  const accountStatus = statusRes?.data || initialAccountStatus || null;
+
+  // Mutation for Trader Onboarding
+  const { mutate: onboardTrader, isPending: isOnboarding } = useMutation({
+    mutationFn: () => paymentService.onboardTrader(traderId),
+    onSuccess: (res) => {
+      const targetUrl = res.data?.onboardingUrl || (res as any).onboardingUrl;
       if (res.success && targetUrl) {
         toast.info("Redirecting to Stripe Express Onboarding...");
         window.location.href = targetUrl;
+      } else if (targetUrl) {
+        toast.info("Redirecting to Stripe Express Onboarding...");
+        window.location.href = targetUrl;
       } else {
-        toast.error(res.message || "Failed to retrieve onboarding URL");
+        toast.error(res.message || "Failed to retrieve Stripe onboarding URL");
       }
-    });
-  };
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Failed to initialize Stripe onboarding");
+    },
+  });
 
-  const handleOpenDashboard = async () => {
-    setIsOpeningDashboard(true);
-    try {
-      const res = await getExpressDashboardUrlAction(traderId);
-      if (res.success && res.data?.url) {
-        window.open(res.data.url, "_blank");
+  // Mutation for opening Stripe Express Dashboard
+  const { mutate: getStripeDashboard, isPending: isOpeningDashboard } = useMutation({
+    mutationFn: () => paymentService.getStripeDashboard(traderId),
+    onSuccess: (res) => {
+      const targetUrl = res.data?.dashboardUrl || res.data?.url || (res as any).url;
+      if (res.success && targetUrl) {
+        window.open(targetUrl, "_blank");
+      } else if (targetUrl) {
+        window.open(targetUrl, "_blank");
       } else {
         toast.error(res.message || "Dashboard URL unavailable");
       }
-    } catch (err: any) {
-      toast.error(err.message || "Could not open Stripe Express dashboard");
-    } finally {
-      setIsOpeningDashboard(false);
-    }
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Could not open Stripe Express dashboard");
+    },
+  });
+
+  const handleConnectStripe = () => {
+    onboardTrader();
+  };
+
+  const handleOpenDashboard = () => {
+    getStripeDashboard();
   };
 
   const isOnboarded = accountStatus?.isOnboarded || false;
@@ -138,17 +165,17 @@ export function StripeConnectCard({ traderId, initialAccountStatus }: StripeConn
               <Button
                 size="sm"
                 onClick={handleConnectStripe}
-                disabled={isPending}
+                disabled={isOnboarding}
                 className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md"
               >
-                {isPending ? (
+                {isOnboarding ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Initializing...
                   </>
                 ) : (
                   <>
-                    Connect with Stripe
+                    Setup Stripe Payouts
                     <ArrowUpRight className="h-4 w-4" />
                   </>
                 )}
