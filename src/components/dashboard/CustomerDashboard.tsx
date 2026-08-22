@@ -2,16 +2,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
 import {
   Calendar,
   Clock,
   MapPin,
   Search,
-  User,
+  User as UserIcon,
   Sparkles,
   ArrowRight,
-  Loader2,
   CalendarPlus,
   CheckCircle2,
   Clock3,
@@ -21,17 +19,19 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-import { useAuthStore } from '@/store/useAuthStore';
-import { bookingService } from '@/services/booking.service';
+import { User } from '@/types/auth.types';
 import { Booking, BookingStatus } from '@/types/api.types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-export function CustomerDashboard() {
-  const { user } = useAuthStore();
+interface CustomerDashboardProps {
+  initialUser?: User | null;
+  initialBookings?: Booking[];
+}
+
+export function CustomerDashboard({ initialUser, initialBookings }: CustomerDashboardProps) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
 
@@ -40,9 +40,9 @@ export function CustomerDashboard() {
     {
       id: 'cb-201',
       traderId: 'trader-123',
-      customerName: user?.name || 'Alex Morgan',
-      customerPhone: user?.phone || '+447700900077',
-      customerEmail: user?.email || 'customer@example.com',
+      customerName: initialUser?.name || 'Alex Morgan',
+      customerPhone: initialUser?.phone || '+447700900077',
+      customerEmail: initialUser?.email || 'customer@example.com',
       address: '12 Baker Street, Marylebone',
       postcode: 'NW1 6XE',
       serviceDescription: 'Boiler Inspection & Gas Safety Certificate',
@@ -57,9 +57,9 @@ export function CustomerDashboard() {
     {
       id: 'cb-202',
       traderId: 'trader-456',
-      customerName: user?.name || 'Alex Morgan',
-      customerPhone: user?.phone || '+447700900077',
-      customerEmail: user?.email || 'customer@example.com',
+      customerName: initialUser?.name || 'Alex Morgan',
+      customerPhone: initialUser?.phone || '+447700900077',
+      customerEmail: initialUser?.email || 'customer@example.com',
       address: '45 Oxford Road, Soho',
       postcode: 'W1D 1BS',
       serviceDescription: 'Emergency Radiator Leak & Valve Replacement',
@@ -71,38 +71,9 @@ export function CustomerDashboard() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
-    {
-      id: 'cb-203',
-      traderId: 'trader-789',
-      customerName: user?.name || 'Alex Morgan',
-      customerPhone: user?.phone || '+447700900077',
-      customerEmail: user?.email || 'customer@example.com',
-      address: '88 Kensington High St',
-      postcode: 'W8 5SA',
-      serviceDescription: 'EV Charger Point Installation Audit',
-      startTime: new Date(Date.now() + 86400 * 1000 * 5).toISOString(),
-      endTime: new Date(Date.now() + 86400 * 1000 * 5 + 3600 * 1000 * 2).toISOString(),
-      feeAmount: 50.0,
-      paymentStatus: 'UNPAID',
-      status: 'PENDING',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
   ];
 
-  // Fetch customer bookings from backend service
-  const { data, isLoading } = useQuery({
-    queryKey: ['customer-bookings', user?.id],
-    queryFn: () =>
-      bookingService.getTraderBookings({
-        traderId: 'trader-123',
-        page: 1,
-        limit: 10,
-      }),
-    enabled: Boolean(user),
-  });
-
-  const rawBookings = data?.data && data.data.length > 0 ? data.data : demoCustomerBookings;
+  const rawBookings = initialBookings && initialBookings.length > 0 ? initialBookings : demoCustomerBookings;
 
   const filteredBookings = rawBookings.filter((b) => {
     const matchesSearch =
@@ -149,11 +120,11 @@ export function CustomerDashboard() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="outline" className="text-xs border-emerald-500/30 text-emerald-400 bg-emerald-500/5">
-              <Sparkles className="h-3 w-3 mr-1" /> Customer Dashboard
+              <Sparkles className="h-3 w-3 mr-1" /> Customer Dashboard (RSC Server-Fetched)
             </Badge>
           </div>
           <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Welcome back, {user?.name || 'Valued Customer'}!
+            Welcome back, {initialUser?.name || 'Valued Customer'}!
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
             Manage your service appointments, track status updates, and connect with traders.
@@ -291,12 +262,7 @@ export function CustomerDashboard() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-2">
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              <span className="text-xs">Loading activity...</span>
-            </div>
-          ) : filteredBookings.length === 0 ? (
+          {filteredBookings.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground gap-3">
               <Sparkles className="h-10 w-10 text-muted-foreground/40" />
               <p className="text-sm font-semibold">No bookings found</p>
@@ -349,7 +315,7 @@ export function CustomerDashboard() {
 
                     {/* Trader Contact Details */}
                     <div className="flex items-center gap-2 sm:col-span-2 md:col-span-1 p-2 rounded-lg bg-card/60 border border-border/30">
-                      <User className="h-4 w-4 text-indigo-400 shrink-0" />
+                      <UserIcon className="h-4 w-4 text-indigo-400 shrink-0" />
                       <div className="min-w-0">
                         <p className="text-[10px] text-muted-foreground/80 font-mono">ASSIGNED TRADER</p>
                         <p className="font-medium text-foreground truncate">TradeSlot Professional #{booking.traderId.slice(-4)}</p>

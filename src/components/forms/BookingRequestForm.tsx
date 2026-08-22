@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 import { bookingRequestSchema, BookingRequestSchemaType } from '@/lib/validations/booking.schema';
-import { bookingService } from '@/services/booking.service';
+import { createBookingAction } from '@/app/actions/booking.actions';
 import { Booking } from '@/types/api.types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,7 +36,7 @@ export function BookingRequestForm({
   defaultFee = 50,
   onSuccess,
 }: BookingRequestFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const {
     register,
@@ -64,10 +64,9 @@ export function BookingRequestForm({
 
   const selectedChannel = watch('channel');
 
-  const onSubmit = async (data: BookingRequestSchemaType) => {
-    setIsSubmitting(true);
-    try {
-      const response = await bookingService.createBooking({
+  const onSubmit = (data: BookingRequestSchemaType) => {
+    startTransition(async () => {
+      const response = await createBookingAction({
         traderId: data.traderId,
         customerName: data.customerName,
         customerPhone: data.customerPhone,
@@ -76,7 +75,10 @@ export function BookingRequestForm({
         postcode: data.postcode,
         serviceDescription: data.serviceDescription,
         startTime: data.startTime,
+        endTime: data.endTime,
         feeAmount: Number(data.feeAmount),
+        channel: data.channel,
+        notes: data.notes,
       });
 
       if (response.success && response.data) {
@@ -89,13 +91,7 @@ export function BookingRequestForm({
           description: response.message || 'Could not create booking request.',
         });
       }
-    } catch (err: any) {
-      toast.error('Booking Error', {
-        description: err.message || 'Failed to submit booking request.',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    });
   };
 
   return (
@@ -139,7 +135,7 @@ export function BookingRequestForm({
               placeholder="Jane Smith"
               className={`pl-9 ${errors.customerName ? 'border-destructive focus-visible:ring-destructive' : ''}`}
               {...register('customerName')}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
           </div>
           {errors.customerName && (
@@ -162,7 +158,7 @@ export function BookingRequestForm({
               placeholder="+88017... or +4479..."
               className={`pl-9 ${errors.customerPhone ? 'border-destructive focus-visible:ring-destructive' : ''}`}
               {...register('customerPhone')}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
           </div>
           {errors.customerPhone && (
@@ -185,7 +181,7 @@ export function BookingRequestForm({
               placeholder="customer@example.com"
               className={`pl-9 ${errors.customerEmail ? 'border-destructive focus-visible:ring-destructive' : ''}`}
               {...register('customerEmail')}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
           </div>
           {errors.customerEmail && (
@@ -207,7 +203,7 @@ export function BookingRequestForm({
               placeholder="123 High Street, Flat 4"
               className={`pl-9 ${errors.address ? 'border-destructive focus-visible:ring-destructive' : ''}`}
               {...register('address')}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
           </div>
           {errors.address && (
@@ -227,7 +223,7 @@ export function BookingRequestForm({
               errors.postcode ? 'border-destructive focus-visible:ring-destructive' : ''
             }`}
             {...register('postcode')}
-            disabled={isSubmitting}
+            disabled={isPending}
           />
           {errors.postcode && (
             <p className="text-xs text-destructive font-medium">{errors.postcode.message}</p>
@@ -252,7 +248,7 @@ export function BookingRequestForm({
                 errors.feeAmount ? 'border-destructive focus-visible:ring-destructive' : ''
               }`}
               {...register('feeAmount')}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
           </div>
           {errors.feeAmount && (
@@ -274,7 +270,7 @@ export function BookingRequestForm({
                 errors.serviceDescription ? 'border-destructive focus-visible:ring-destructive' : ''
               }`}
               {...register('serviceDescription')}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
           </div>
           {errors.serviceDescription && (
@@ -288,10 +284,10 @@ export function BookingRequestForm({
       {/* Submit Button */}
       <Button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isPending}
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 rounded-lg shadow-md transition-all gap-2"
       >
-        {isSubmitting ? (
+        {isPending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
             Creating Booking Request...

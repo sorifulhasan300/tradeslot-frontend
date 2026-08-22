@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState, useTransition } from 'react';
 import { MapPin, Navigation, Compass, CheckCircle2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { workAreaService } from '@/services/work-area.service';
+import { upsertWorkAreaAction } from '@/app/actions/work-area.actions';
+import { DailyWorkArea } from '@/types/api.types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,35 +13,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 interface WorkAreaCardProps {
   traderId: string;
+  initialWorkArea?: DailyWorkArea | null;
 }
 
-export function WorkAreaCard({ traderId }: WorkAreaCardProps) {
-  const queryClient = useQueryClient();
+export function WorkAreaCard({ traderId, initialWorkArea }: WorkAreaCardProps) {
   const today = new Date().toISOString().split('T')[0];
+  const [isPending, startTransition] = useTransition();
 
-  const [postcodeOrCity, setPostcodeOrCity] = useState('SW1A 1AA');
-  const [radiusMiles, setRadiusMiles] = useState('15');
-  const [selectedDate, setSelectedDate] = useState(today);
-
-  // Fetch current work area
-  const { data: workAreaData, isLoading: isLoadingArea } = useQuery({
-    queryKey: ['workArea', traderId, selectedDate],
-    queryFn: () => workAreaService.getWorkArea(traderId, selectedDate),
-  });
-
-  const currentWorkArea = workAreaData?.data;
-
-  // Mutation for updating work area
-  const mutation = useMutation({
-    mutationFn: workAreaService.upsertWorkArea,
-    onSuccess: (res) => {
-      toast.success(res.message || 'Work area updated successfully!');
-      queryClient.invalidateQueries({ queryKey: ['workArea', traderId] });
-    },
-    onError: (err: any) => {
-      toast.error(err.message || 'Failed to update work area');
-    },
-  });
+  const [postcodeOrCity, setPostcodeOrCity] = useState(initialWorkArea?.postcodeOrCity || 'SW1A 1AA');
+  const [radiusMiles, setRadiusMiles] = useState(initialWorkArea?.radiusMiles?.toString() || '15');
+  const [selectedDate, setSelectedDate] = useState(initialWorkArea?.date?.split('T')[0] || today);
+  const [currentWorkArea, setCurrentWorkArea] = useState<DailyWorkArea | null>(initialWorkArea || null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,11 +32,20 @@ export function WorkAreaCard({ traderId }: WorkAreaCardProps) {
       return;
     }
 
-    mutation.mutate({
-      traderId,
-      postcodeOrCity: postcodeOrCity.trim(),
-      radiusMiles: parseInt(radiusMiles, 10),
-      date: selectedDate,
+    startTransition(async () => {
+      const res = await upsertWorkAreaAction({
+        traderId,
+        postcodeOrCity: postcodeOrCity.trim(),
+        radiusMiles: parseInt(radiusMiles, 10),
+        date: selectedDate,
+      });
+
+      if (res.success && res.data) {
+        toast.success(res.message || 'Work area updated successfully!');
+        setCurrentWorkArea(res.data);
+      } else {
+        toast.error(res.message || 'Failed to update work area');
+      }
     });
   };
 
@@ -96,7 +87,8 @@ export function WorkAreaCard({ traderId }: WorkAreaCardProps) {
                 placeholder="e.g. SW1A 1AA or London"
                 value={postcodeOrCity}
                 onChange={(e) => setPostcodeOrCity(e.target.value)}
-                className="bg-background/50 text-sm"
+                className="bg-background/50 text-sm font-mono uppercase"
+                disabled={isPending}
                 required
               />
             </div>
@@ -106,7 +98,7 @@ export function WorkAreaCard({ traderId }: WorkAreaCardProps) {
                 <Navigation className="h-3.5 w-3.5 text-muted-foreground" />
                 Travel Radius
               </Label>
-              <Select value={radiusMiles} onValueChange={(val) => val && setRadiusMiles(val)}>
+              <Select value={radiusMiles} onValueChange={(val) => val && setRadiusMiles(val)} disabled={isPending}>
                 <SelectTrigger id="radius" className="bg-background/50 text-sm">
                   <SelectValue placeholder="Select radius" />
                 </SelectTrigger>
@@ -129,7 +121,8 @@ export function WorkAreaCard({ traderId }: WorkAreaCardProps) {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="bg-background/50 text-sm"
+                className="bg-background/50 text-sm font-mono"
+                disabled={isPending}
               />
             </div>
           </div>
@@ -146,10 +139,10 @@ export function WorkAreaCard({ traderId }: WorkAreaCardProps) {
             <Button
               type="submit"
               size="sm"
-              disabled={mutation.isPending || isLoadingArea}
+              disabled={isPending}
               className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md"
             >
-              {mutation.isPending ? (
+              {isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Saving...

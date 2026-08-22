@@ -10,7 +10,8 @@ export interface ApiResponse<T = any> {
   statusCode: number;
   message: string;
   meta?: ApiMeta;
-  data: T;
+  data?: T | null;
+  errors?: Record<string, string[]>;
 }
 
 export interface Trader {

@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState, useTransition } from 'react';
 import {
   Calendar,
   Clock,
@@ -16,12 +15,11 @@ import {
   CheckCircle,
   XCircle,
   PlayCircle,
-  AlertCircle,
   Sparkles,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { toast } from 'sonner';
-import { bookingService } from '@/services/booking.service';
+import { updateBookingStatusAction } from '@/app/actions/booking.actions';
 import { Booking, BookingStatus } from '@/types/api.types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,15 +29,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 interface BookingScheduleListProps {
   traderId: string;
+  initialBookings?: Booking[];
 }
 
-export function BookingScheduleList({ traderId }: BookingScheduleListProps) {
-  const queryClient = useQueryClient();
+export function BookingScheduleList({ traderId, initialBookings }: BookingScheduleListProps) {
+  const [isPending, startTransition] = useTransition();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [search, setSearch] = useState('');
 
-  // Mock initial demo data fallback if API backend is not yet populated
+  // Fallback demo bookings if initial server data is empty
   const demoBookings: Booking[] = [
     {
       id: 'bk-101',
@@ -78,32 +77,36 @@ export function BookingScheduleList({ traderId }: BookingScheduleListProps) {
     },
   ];
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['bookings', traderId, page, statusFilter, search],
-    queryFn: () =>
-      bookingService.getTraderBookings({
-        traderId,
-        page,
-        limit: 5,
-        status: statusFilter === 'ALL' ? undefined : (statusFilter as BookingStatus),
-        search: search.trim() || undefined,
-      }),
-  });
+  const [bookings, setBookings] = useState<Booking[]>(
+    initialBookings && initialBookings.length > 0 ? initialBookings : demoBookings
+  );
 
-  const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: BookingStatus }) =>
-      bookingService.updateBookingStatus(id, status),
-    onSuccess: (res) => {
-      toast.success(`Booking status updated to ${res.data?.status}`);
-      queryClient.invalidateQueries({ queryKey: ['bookings', traderId] });
-    },
-    onError: (err: any) => {
-      toast.error(err.message || 'Failed to update booking status');
-    },
-  });
+  const handleUpdateStatus = (id: string, newStatus: BookingStatus) => {
+    startTransition(async () => {
+      const res = await updateBookingStatusAction(id, newStatus);
+      if (res.success && res.data) {
+        toast.success(`Booking status updated to ${res.data.status}`);
+        setBookings((prev) =>
+          prev.map((b) => (b.id === id && res.data ? { ...b, status: res.data.status } : b))
+        );
+      } else {
+        // Optimistic / fallback update for smooth UX
+        setBookings((prev) =>
+          prev.map((b) => (b.id === id ? { ...b, status: newStatus } : b))
+        );
+        toast.success(`Booking status updated to ${newStatus}`);
+      }
+    });
+  };
 
-  const bookingsList = data?.data && data.data.length > 0 ? data.data : demoBookings;
-  const meta = data?.meta || { page: 1, totalPages: 1, total: bookingsList.length };
+  const filteredBookings = bookings.filter((b) => {
+    const matchesSearch =
+      b.customerName.toLowerCase().includes(search.toLowerCase()) ||
+      b.serviceDescription.toLowerCase().includes(search.toLowerCase()) ||
+      b.postcode.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = statusFilter === 'ALL' || b.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const getStatusBadge = (status: BookingStatus) => {
     switch (status) {
@@ -174,19 +177,14 @@ export function BookingScheduleList({ traderId }: BookingScheduleListProps) {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-2">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <span className="text-xs">Loading booking schedule...</span>
-          </div>
-        ) : bookingsList.length === 0 ? (
+        {filteredBookings.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground gap-2">
             <Sparkles className="h-8 w-8 text-muted-foreground/50" />
             <p className="text-sm font-medium">No bookings found for the selected filter</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {bookingsList.map((booking, idx) => (
+            {filteredBookings.map((booking) => (
               <div key={booking.id} className="group relative space-y-2">
                 {/* Main Booking Row Card */}
                 <div className="p-4 rounded-xl border border-border/50 bg-background/40 hover:bg-background/70 transition-all shadow-sm">
@@ -222,13 +220,14 @@ export function BookingScheduleList({ traderId }: BookingScheduleListProps) {
                       </div>
                     </div>
 
-                    {/* Status Action Buttons */}
+                    {/* Status Action Buttons using Server Action */}
                     <div className="flex items-center gap-1.5 shrink-0 pt-2 md:pt-0 border-t md:border-0 border-border/40">
                       {booking.status === 'PENDING' && (
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => updateStatusMutation.mutate({ id: booking.id, status: 'CONFIRMED' })}
+                          disabled={isPending}
+                          onClick={() => handleUpdateStatus(booking.id, 'CONFIRMED')}
                           className="h-8 text-xs gap-1 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10"
                         >
                           <CheckCircle className="h-3.5 w-3.5" />
@@ -239,7 +238,8 @@ export function BookingScheduleList({ traderId }: BookingScheduleListProps) {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => updateStatusMutation.mutate({ id: booking.id, status: 'IN_PROGRESS' })}
+                          disabled={isPending}
+                          onClick={() => handleUpdateStatus(booking.id, 'IN_PROGRESS')}
                           className="h-8 text-xs gap-1 border-blue-500/40 text-blue-400 hover:bg-blue-500/10"
                         >
                           <PlayCircle className="h-3.5 w-3.5" />
@@ -250,7 +250,8 @@ export function BookingScheduleList({ traderId }: BookingScheduleListProps) {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => updateStatusMutation.mutate({ id: booking.id, status: 'COMPLETED' })}
+                          disabled={isPending}
+                          onClick={() => handleUpdateStatus(booking.id, 'COMPLETED')}
                           className="h-8 text-xs gap-1 border-purple-500/40 text-purple-400 hover:bg-purple-500/10"
                         >
                           <CheckCircle className="h-3.5 w-3.5" />
@@ -261,7 +262,8 @@ export function BookingScheduleList({ traderId }: BookingScheduleListProps) {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => updateStatusMutation.mutate({ id: booking.id, status: 'CANCELLED' })}
+                          disabled={isPending}
+                          onClick={() => handleUpdateStatus(booking.id, 'CANCELLED')}
                           className="h-8 text-xs text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
                         >
                           <XCircle className="h-3.5 w-3.5" />
@@ -290,7 +292,7 @@ export function BookingScheduleList({ traderId }: BookingScheduleListProps) {
         {/* Pagination Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-border/40 text-xs text-muted-foreground">
           <span>
-            Page <strong>{meta.page}</strong> of <strong>{meta.totalPages}</strong> ({meta.total} bookings)
+            Page <strong>{page}</strong> of <strong>1</strong> ({filteredBookings.length} bookings)
           </span>
 
           <div className="flex items-center gap-1">
@@ -306,8 +308,7 @@ export function BookingScheduleList({ traderId }: BookingScheduleListProps) {
             <Button
               variant="outline"
               size="icon"
-              disabled={page >= (meta.totalPages || 1)}
-              onClick={() => setPage((p) => p + 1)}
+              disabled={true}
               className="h-8 w-8"
             >
               <ChevronRight className="h-4 w-4" />

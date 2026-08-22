@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -18,8 +18,8 @@ import {
   UserCheck,
   AlertCircle,
 } from 'lucide-react';
-
 import { registerSchema, RegisterSchemaType } from '@/lib/validations/auth.schema';
+import { registerAction } from '@/app/actions/auth.actions';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,16 +32,13 @@ interface RegisterFormProps {
 
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const router = useRouter();
-  const {
-    register: registerAuth,
-    isLoading,
-    error: storeError,
-    requiresOtpVerification,
-    pendingEmail,
-    clearError,
-  } = useAuthStore();
-
+  const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [requiresOtp, setRequiresOtp] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+
+  const { setAuth } = useAuthStore();
 
   const {
     register,
@@ -62,33 +59,35 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
   const selectedRole = watch('role');
 
-  const onSubmit = async (data: RegisterSchemaType) => {
-    clearError();
-    const success = await registerAuth(data);
-    if (success) {
-      if (useAuthStore.getState().requiresOtpVerification) {
-        toast.info('Verification Required', {
-          description: 'A 6-digit OTP verification code has been sent to your email.',
-        });
-      } else {
-        toast.success('Account Created!', {
-          description: 'Your account was created successfully.',
-        });
-        if (onSuccess) {
-          onSuccess();
-        } else {
-          router.push('/dashboard');
+  const onSubmit = (data: RegisterSchemaType) => {
+    setFormError(null);
+    startTransition(async () => {
+      const res = await registerAction(data);
+      if (res.success) {
+        if (res.data?.requiresVerification || res.data?.user?.emailVerified === false) {
+          setRequiresOtp(true);
+          setPendingEmail(data.email);
+          toast.info('Verification Required', {
+            description: 'A 6-digit OTP verification code has been sent to your email.',
+          });
+        } else if (res.data?.user) {
+          setAuth(res.data.user, res.data.token);
+          toast.success('Account Created!', {
+            description: 'Your account was created successfully.',
+          });
+          if (onSuccess) onSuccess();
+          else router.push('/dashboard');
         }
+      } else {
+        setFormError(res.message || 'Registration failed. Please check inputs.');
+        toast.error('Registration Failed', {
+          description: res.message || 'Could not create account.',
+        });
       }
-    } else {
-      toast.error('Registration Failed', {
-        description: storeError || 'Could not create account. Please check inputs.',
-      });
-    }
+    });
   };
 
-  // If OTP verification stage is active
-  if (requiresOtpVerification && pendingEmail) {
+  if (requiresOtp && pendingEmail) {
     return (
       <div className="space-y-4">
         <div className="text-center space-y-1 mb-4">
@@ -110,10 +109,10 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      {storeError && (
+      {formError && (
         <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm flex items-center gap-2">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          <span>{storeError}</span>
+          <span>{formError}</span>
         </div>
       )}
 
@@ -166,7 +165,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             placeholder="John Doe"
             className={`pl-9 ${errors.name ? 'border-destructive focus-visible:ring-destructive' : ''}`}
             {...register('name')}
-            disabled={isLoading}
+            disabled={isPending}
           />
         </div>
         {errors.name && (
@@ -189,7 +188,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             placeholder="trader@example.com"
             className={`pl-9 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}`}
             {...register('email')}
-            disabled={isLoading}
+            disabled={isPending}
           />
         </div>
         {errors.email && (
@@ -212,7 +211,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             placeholder="+8801700000000 or +447911123456"
             className={`pl-9 ${errors.phone ? 'border-destructive focus-visible:ring-destructive' : ''}`}
             {...register('phone')}
-            disabled={isLoading}
+            disabled={isPending}
           />
         </div>
         {errors.phone && (
@@ -235,7 +234,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             placeholder="Min. 6 chars with uppercase & digit"
             className={`pl-9 pr-10 ${errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}`}
             {...register('password')}
-            disabled={isLoading}
+            disabled={isPending}
           />
           <button
             type="button"
@@ -254,10 +253,10 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       {/* Submit Button */}
       <Button
         type="submit"
-        disabled={isLoading}
+        disabled={isPending}
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 rounded-lg shadow-md transition-all gap-2"
       >
-        {isLoading ? (
+        {isPending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
             Creating Account...

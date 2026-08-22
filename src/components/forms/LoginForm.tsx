@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Lock, Mail, Eye, EyeOff, Loader2, LogIn, AlertCircle } from 'lucide-react';
-
 import { loginSchema, LoginSchemaType } from '@/lib/validations/auth.schema';
+import { loginAction } from '@/app/actions/auth.actions';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,10 +21,11 @@ interface LoginFormProps {
 export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectPath = redirectTo || searchParams.get('redirect') || '/dashboard';
-  
-  const { login, isLoading, error: storeError, clearError } = useAuthStore();
+  const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const { setAuth } = useAuthStore();
 
   const {
     register,
@@ -38,42 +39,38 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
     },
   });
 
-  const onSubmit = async (data: LoginSchemaType) => {
-    clearError();
-    const success = await login(data);
-    if (success) {
-      toast.success('Welcome back!', {
-        description: 'You have logged in successfully.',
-      });
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        const loggedInUser = useAuthStore.getState().user;
-        const explicitRedirect = redirectTo || searchParams.get('redirect');
-        
-        let targetPath = explicitRedirect;
-        if (!targetPath) {
-          if (loggedInUser?.role === 'CUSTOMER') {
-            targetPath = '/customer/dashboard';
-          } else {
-            targetPath = '/dashboard';
-          }
+  const onSubmit = (data: LoginSchemaType) => {
+    setFormError(null);
+    startTransition(async () => {
+      const res = await loginAction(data);
+      if (res.success && res.data?.user) {
+        setAuth(res.data.user, res.data.token);
+        toast.success('Welcome back!', {
+          description: 'Logged in successfully',
+        });
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          const role = res.data.user.role;
+          const explicitRedirect = redirectTo || searchParams.get('redirect');
+          const targetPath = explicitRedirect || (role === 'CUSTOMER' ? '/customer/dashboard' : '/dashboard');
+          router.push(targetPath);
         }
-        router.push(targetPath);
+      } else {
+        setFormError(res.message || 'Invalid email or password. Please try again.');
+        toast.error('Authentication Failed', {
+          description: res.message || 'Invalid email or password.',
+        });
       }
-    } else {
-      toast.error('Authentication Failed', {
-        description: storeError || 'Invalid email or password. Please try again.',
-      });
-    }
+    });
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      {storeError && (
+      {formError && (
         <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm flex items-center gap-2">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          <span>{storeError}</span>
+          <span>{formError}</span>
         </div>
       )}
 
@@ -92,7 +89,7 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
             placeholder="trader@example.com"
             className={`pl-9 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}`}
             {...register('email')}
-            disabled={isLoading}
+            disabled={isPending}
           />
         </div>
         {errors.email && (
@@ -117,7 +114,7 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
             placeholder="••••••••"
             className={`pl-9 pr-10 ${errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}`}
             {...register('password')}
-            disabled={isLoading}
+            disabled={isPending}
           />
           <button
             type="button"
@@ -136,10 +133,10 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
       {/* Submit Button */}
       <Button
         type="submit"
-        disabled={isLoading}
+        disabled={isPending}
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 rounded-lg shadow-md transition-all gap-2"
       >
-        {isLoading ? (
+        {isPending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
             Signing in...

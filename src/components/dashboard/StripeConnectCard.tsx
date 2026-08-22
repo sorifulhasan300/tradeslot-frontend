@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useState, useTransition } from "react";
 import {
   CreditCard,
   ExternalLink,
@@ -11,7 +10,8 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { toast } from "sonner";
-import { paymentService } from "@/services/payment.service";
+import { onboardStripeAction, getExpressDashboardUrlAction } from "@/app/actions/payment.actions";
+import { StripeAccountStatus } from "@/types/api.types";
 import {
   Card,
   CardContent,
@@ -24,49 +24,35 @@ import { Badge } from "@/components/ui/badge";
 
 interface StripeConnectCardProps {
   traderId: string;
+  initialAccountStatus?: StripeAccountStatus | null;
 }
 
-export function StripeConnectCard({ traderId }: StripeConnectCardProps) {
+export function StripeConnectCard({ traderId, initialAccountStatus }: StripeConnectCardProps) {
+  const [isPending, startTransition] = useTransition();
   const [isOpeningDashboard, setIsOpeningDashboard] = useState(false);
+  const [accountStatus, setAccountStatus] = useState<StripeAccountStatus | null>(initialAccountStatus || null);
 
-  // Fetch account status
-  const {
-    data: statusData,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
-    queryKey: ["stripeStatus", traderId],
-    queryFn: () => paymentService.getAccountStatus(traderId),
-    retry: 1,
-  });
-
-  const accountStatus = statusData?.data;
-
-  // Onboarding link mutation
-  const onboardMutation = useMutation({
-    mutationFn: () => paymentService.onboardStripe(traderId),
-    onSuccess: (res) => {
-      if (res.data?.url) {
+  const handleConnectStripe = () => {
+    startTransition(async () => {
+      const res = await onboardStripeAction(traderId);
+      const targetUrl = res.data?.onboardingUrl;
+      if (res.success && targetUrl) {
         toast.info("Redirecting to Stripe Express Onboarding...");
-        window.location.href = res.data.url;
+        window.location.href = targetUrl;
       } else {
-        toast.error("Failed to retrieve onboarding URL");
+        toast.error(res.message || "Failed to retrieve onboarding URL");
       }
-    },
-    onError: (err: any) => {
-      toast.error(err.message || "Error creating Stripe onboarding session");
-    },
-  });
+    });
+  };
 
   const handleOpenDashboard = async () => {
     setIsOpeningDashboard(true);
     try {
-      const res = await paymentService.getExpressDashboardUrl(traderId);
-      if (res.data?.url) {
+      const res = await getExpressDashboardUrlAction(traderId);
+      if (res.success && res.data?.url) {
         window.open(res.data.url, "_blank");
       } else {
-        toast.error("Dashboard URL unavailable");
+        toast.error(res.message || "Dashboard URL unavailable");
       }
     } catch (err: any) {
       toast.error(err.message || "Could not open Stripe Express dashboard");
@@ -97,11 +83,7 @@ export function StripeConnectCard({ traderId }: StripeConnectCardProps) {
             </div>
           </div>
 
-          {isLoading ? (
-            <Badge variant="outline" className="animate-pulse">
-              Checking...
-            </Badge>
-          ) : isOnboarded && chargesEnabled ? (
+          {isOnboarded && chargesEnabled ? (
             <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 gap-1">
               <CheckCircle2 className="h-3 w-3" />
               Payouts Active
@@ -155,11 +137,11 @@ export function StripeConnectCard({ traderId }: StripeConnectCardProps) {
             ) : (
               <Button
                 size="sm"
-                onClick={() => onboardMutation.mutate()}
-                disabled={onboardMutation.isPending}
+                onClick={handleConnectStripe}
+                disabled={isPending}
                 className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md"
               >
-                {onboardMutation.isPending ? (
+                {isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Initializing...

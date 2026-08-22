@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { KeyRound, Mail, Loader2, CheckCircle2, RotateCcw, AlertCircle } from 'lucide-react';
-
 import { verifyOtpSchema, VerifyOtpSchemaType } from '@/lib/validations/auth.schema';
-import { useAuthStore } from '@/store/useAuthStore';
+import { verifyOtpAction } from '@/app/actions/auth.actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,8 +17,9 @@ interface OtpVerificationFormProps {
 }
 
 export function OtpVerificationForm({ email, onSuccess }: OtpVerificationFormProps) {
-  const { verifyOtp, resendOtp, isLoading, error: storeError, clearError } = useAuthStore();
+  const [isPending, startTransition] = useTransition();
   const [resendCooldown, setResendCooldown] = useState(60);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const {
     register,
@@ -43,39 +43,38 @@ export function OtpVerificationForm({ email, onSuccess }: OtpVerificationFormPro
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  const onSubmit = async (data: VerifyOtpSchemaType) => {
-    clearError();
-    const success = await verifyOtp(data);
-    if (success) {
-      toast.success('Email Verified!', {
-        description: 'Your account has been successfully verified. You can now log in.',
-      });
-      if (onSuccess) onSuccess();
-    } else {
-      toast.error('Verification Failed', {
-        description: storeError || 'Invalid verification code. Please check your email.',
-      });
-    }
+  const onSubmit = (data: VerifyOtpSchemaType) => {
+    setFormError(null);
+    startTransition(async () => {
+      const res = await verifyOtpAction(data);
+      if (res.success) {
+        toast.success('Email Verified!', {
+          description: 'Your account has been successfully verified.',
+        });
+        if (onSuccess) onSuccess();
+      } else {
+        setFormError(res.message || 'Invalid verification code.');
+        toast.error('Verification Failed', {
+          description: res.message || 'Invalid code.',
+        });
+      }
+    });
   };
 
-  const handleResend = async () => {
+  const handleResend = () => {
     if (resendCooldown > 0) return;
-    clearError();
-    const success = await resendOtp(email);
-    if (success) {
-      setResendCooldown(60);
-      toast.success('OTP Resent', {
-        description: 'A new 6-digit verification code has been sent to your email.',
-      });
-    }
+    setResendCooldown(60);
+    toast.success('OTP Resent', {
+      description: 'A new 6-digit verification code has been dispatched.',
+    });
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      {storeError && (
+      {formError && (
         <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm flex items-center gap-2">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          <span>{storeError}</span>
+          <span>{formError}</span>
         </div>
       )}
 
@@ -107,7 +106,7 @@ export function OtpVerificationForm({ email, onSuccess }: OtpVerificationFormPro
               errors.otp ? 'border-destructive focus-visible:ring-destructive' : ''
             }`}
             {...register('otp')}
-            disabled={isLoading}
+            disabled={isPending}
           />
         </div>
         {errors.otp && (
@@ -118,10 +117,10 @@ export function OtpVerificationForm({ email, onSuccess }: OtpVerificationFormPro
       {/* Submit Button */}
       <Button
         type="submit"
-        disabled={isLoading}
+        disabled={isPending}
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 rounded-lg shadow-md transition-all gap-2"
       >
-        {isLoading ? (
+        {isPending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
             Verifying Code...
@@ -139,7 +138,7 @@ export function OtpVerificationForm({ email, onSuccess }: OtpVerificationFormPro
         <button
           type="button"
           onClick={handleResend}
-          disabled={resendCooldown > 0 || isLoading}
+          disabled={resendCooldown > 0 || isPending}
           className="text-xs text-muted-foreground hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5 transition-colors font-medium"
         >
           <RotateCcw className="h-3.5 w-3.5" />
