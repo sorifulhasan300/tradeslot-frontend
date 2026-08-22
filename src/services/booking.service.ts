@@ -2,7 +2,7 @@ import { apiClient } from '@/lib/api-client';
 import { ApiResponse, AvailableSlot, Booking, BookingStatus, CreateBookingDto } from '@/types/api.types';
 
 export interface GetBookingsQueryParams {
-  traderId: string;
+  traderId?: string;
   page?: number;
   limit?: number;
   status?: BookingStatus;
@@ -14,6 +14,18 @@ export interface GetBookingsQueryParams {
 }
 
 export const bookingService = {
+  async getAllBookings(params?: GetBookingsQueryParams): Promise<ApiResponse<Booking[]>> {
+    const response = await apiClient.get<ApiResponse<Booking[]>>('/bookings', {
+      params,
+    });
+    return response.data;
+  },
+
+  async getBookingById(id: string): Promise<ApiResponse<Booking>> {
+    const response = await apiClient.get<ApiResponse<Booking>>(`/bookings/${id}`);
+    return response.data;
+  },
+
   async getTraderBookings(paramsOrId: string | GetBookingsQueryParams): Promise<ApiResponse<Booking[]>> {
     const params = typeof paramsOrId === 'string' ? { traderId: paramsOrId } : paramsOrId;
     const response = await apiClient.get<ApiResponse<Booking[]>>(`/bookings/trader/${params.traderId}`, {

@@ -131,9 +131,9 @@ export function BookingScheduleList({
 
   const filteredBookings = rawBookings.filter((b) => {
     const matchesSearch =
-      b.customerName.toLowerCase().includes(search.toLowerCase()) ||
-      b.serviceDescription.toLowerCase().includes(search.toLowerCase()) ||
-      b.postcode.toLowerCase().includes(search.toLowerCase());
+      (b.customerName || '').toLowerCase().includes(search.toLowerCase()) ||
+      (b.serviceDescription || '').toLowerCase().includes(search.toLowerCase()) ||
+      (b.postcode || '').toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === "ALL" || b.status === statusFilter;
     return matchesSearch && matchesStatus;
   });

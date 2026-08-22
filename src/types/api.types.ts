@@ -44,15 +44,35 @@ export interface Booking {
   customerName: string;
   customerPhone: string;
   customerEmail?: string;
-  address: string;
-  postcode: string;
-  serviceDescription: string;
+  address?: string;
+  postcode?: string;
+  serviceDescription?: string;
   startTime: string; // ISO String
   endTime: string;   // ISO String (includes job duration)
   bufferEndTime?: string; // ISO String (includes 30-min buffer gap)
-  feeAmount: number;
-  paymentStatus: 'UNPAID' | 'PAID' | 'REFUNDED';
+  bufferMinutes?: number;
+  feeAmount?: number;
+  flatBookingFee?: number;
+  jobAmount?: number;
+  totalAmount?: number;
+  paymentStatus?: 'UNPAID' | 'PAID' | 'REFUNDED' | string;
   status: BookingStatus;
+  trader?: {
+    id?: string;
+    displayName?: string;
+    bio?: string;
+    user?: {
+      name?: string;
+      email?: string;
+      phone?: string;
+    };
+  };
+  payment?: {
+    id?: string;
+    amount?: number;
+    depositAmount?: number;
+    status?: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
