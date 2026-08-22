@@ -6,11 +6,16 @@ export const messageService = {
    * Send Web Chatbot message payload
    */
   async sendWebChatbotMessage(
-    dto: Partial<ChatbotMessageDto> & { senderId?: string; message: string }
+    dto: ChatbotMessageDto
   ): Promise<ApiResponse<any>> {
     const payload = {
       senderId: dto.senderId || dto.customerPhone || dto.traderId || 'web-user-demo',
       message: dto.message,
+      traderId: dto.traderId,
+      customerName: dto.customerName,
+      customerPhone: dto.customerPhone,
+      postcodeOrCity: dto.postcodeOrCity,
+      preferredTimeSlot: dto.preferredTimeSlot,
     };
     const response = await apiClient.post<ApiResponse<any>>('/messages/chatbot', payload);
     return response.data;
@@ -26,11 +31,18 @@ export const messageService = {
    * Send WhatsApp webhook simulation payload
    */
   async sendWhatsAppMessage(
-    dto: Partial<WhatsAppMessageDto> & { from?: string; text?: string; message?: string }
+    dto: WhatsAppMessageDto
   ): Promise<ApiResponse<any>> {
+    const fromVal = dto.fromPhone || dto.from || dto.customerPhone || 'whatsapp:+447700900088';
+    const textVal = dto.messageBody || dto.text || dto.messageText || '';
+
     const payload = {
-      from: dto.from || dto.customerPhone || '+447700900000',
-      text: dto.text || dto.messageText || dto.message || '',
+      from: fromVal,
+      text: textVal,
+      fromPhone: dto.fromPhone || fromVal,
+      toPhone: dto.toPhone || 'whatsapp:+447700900000',
+      messageBody: dto.messageBody || textVal,
+      whatsappMessageId: dto.whatsappMessageId || `wam_id_${Date.now()}`,
     };
     const response = await apiClient.post<ApiResponse<any>>('/messages/whatsapp', payload);
     return response.data;
@@ -42,3 +54,4 @@ export const messageService = {
 };
 
 export default messageService;
+

@@ -98,16 +98,26 @@ export interface CreateBookingDto {
 }
 
 export interface ChatbotMessageDto {
-  traderId: string;
-  customerPhone: string;
+  traderId?: string;
   customerName?: string;
+  customerPhone?: string;
+  senderId?: string;
   message: string;
+  postcodeOrCity?: string;
+  preferredTimeSlot?: string;
   channel?: 'WEB_CHATBOT';
 }
 
 export interface WhatsAppMessageDto {
-  traderId: string;
-  customerPhone: string;
+  fromPhone?: string;
+  from?: string;
+  toPhone?: string;
+  messageBody?: string;
+  messageText?: string;
+  text?: string;
+  whatsappMessageId?: string;
+  traderId?: string;
+  customerPhone?: string;
   customerName?: string;
-  messageText: string;
 }
+
