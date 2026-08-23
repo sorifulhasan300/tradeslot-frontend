@@ -8,6 +8,7 @@ import {
   HelpCircle,
   ShieldCheck,
   Users,
+  UserCog,
 } from "lucide-react";
 
 export type UserRole = "TRADER" | "CUSTOMER" | "PLATFORM_ADMIN" | "ADMIN" | "BUSINESS_ADMIN";
@@ -50,6 +51,7 @@ export const BUSINESS_NAV_ITEMS: NavItem[] = [
 // Platform Admin-specific navigation links
 export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "Executive Dashboard", href: "/admin/dashboard", icon: ShieldCheck, roles: ["PLATFORM_ADMIN", "ADMIN"] },
+  { label: "User Management", href: "/admin/users", icon: UserCog, roles: ["PLATFORM_ADMIN", "ADMIN"] },
   { label: "Trader Network", href: "/admin/traders", icon: Users, roles: ["PLATFORM_ADMIN", "ADMIN"] },
   { label: "Booking Audit", href: "/admin/bookings", icon: Calendar, roles: ["PLATFORM_ADMIN", "ADMIN"] },
   { label: "Revenue Audit", href: "/admin/revenue", icon: CreditCard, roles: ["PLATFORM_ADMIN", "ADMIN"] },
@@ -74,6 +76,7 @@ export const CUSTOMER_NAV_ITEMS: NavItem[] = [
 export const ADMIN_ROUTES = [
   "/admin",
   "/admin/dashboard",
+  "/admin/users",
   "/admin/traders",
   "/admin/bookings",
   "/admin/revenue",
@@ -118,11 +121,31 @@ export const PUBLIC_AUTH_ROUTES = [
   "/register",
 ];
 
+export const PUBLIC_VERIFY_ROUTES = [
+  "/verify-email",
+  "/verify",
+];
+
 // Centralized route metadata and permissions
 export const ROUTE_CONFIG: Record<string, RouteMeta> = {
+  "/verify-email": {
+    title: "Verify Email Address",
+    breadcrumbs: ["Home", "Verify Email"],
+    allowedRoles: ["TRADER", "CUSTOMER", "PLATFORM_ADMIN", "ADMIN", "BUSINESS_ADMIN"],
+  },
+  "/verify": {
+    title: "Verify Email Address",
+    breadcrumbs: ["Home", "Verify"],
+    allowedRoles: ["TRADER", "CUSTOMER", "PLATFORM_ADMIN", "ADMIN", "BUSINESS_ADMIN"],
+  },
   "/admin/dashboard": {
     title: "Platform Executive Dashboard",
     breadcrumbs: ["Home", "Admin", "Dashboard"],
+    allowedRoles: ["PLATFORM_ADMIN", "ADMIN"],
+  },
+  "/admin/users": {
+    title: "Platform Admin User Management",
+    breadcrumbs: ["Home", "Admin", "User Management"],
     allowedRoles: ["PLATFORM_ADMIN", "ADMIN"],
   },
   "/admin/traders": {

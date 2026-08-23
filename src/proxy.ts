@@ -107,5 +107,7 @@ export const config = {
     '/payouts/:path*',
     '/login',
     '/register',
+    '/verify-email',
+    '/verify',
   ],
 };
