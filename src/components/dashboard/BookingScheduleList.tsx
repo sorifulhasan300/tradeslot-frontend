@@ -41,6 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "../ui/skeleton";
+import { NumericPagination } from "@/components/shared/NumericPagination";
 
 interface BookingScheduleListProps {
   traderId: string;
@@ -101,7 +102,7 @@ export function BookingScheduleList({
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["trader-bookings", traderId, statusFilter, page],
+    queryKey: ["trader-bookings", traderId, statusFilter, page, search],
     queryFn: () =>
       bookingService.getTraderBookings({
         traderId,
@@ -109,6 +110,7 @@ export function BookingScheduleList({
         limit: 10,
         status:
           statusFilter === "ALL" ? undefined : (statusFilter as BookingStatus),
+        search: search || undefined,
       }),
   });
 
@@ -404,33 +406,14 @@ export function BookingScheduleList({
           </div>
         )}
 
-        {/* Pagination Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-border/40 text-xs text-muted-foreground">
-          <span>
-            Page <strong>{page}</strong> of <strong>1</strong> (
-            {filteredBookings.length} bookings)
-          </span>
-
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(p - 1, 1))}
-              className="h-8 w-8"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={true}
-              className="h-8 w-8"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        {/* Numeric Pagination Footer */}
+        <NumericPagination
+          page={page}
+          totalPages={response?.meta?.totalPage || response?.meta?.totalPages || 1}
+          totalItems={response?.meta?.total ?? filteredBookings.length}
+          itemName="bookings"
+          onPageChange={(newPage) => setPage(newPage)}
+        />
       </CardContent>
     </Card>
   );

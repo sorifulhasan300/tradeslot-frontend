@@ -14,6 +14,8 @@ import {
   PoundSterling,
   TrendingUp,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
@@ -33,14 +35,18 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { NumericPagination } from "@/components/shared/NumericPagination";
 
 interface AdminRevenueViewProps {
   initialUser?: User | null;
 }
 
 export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
+  const [page, setPage] = useState(1);
   const [paymentSearch, setPaymentSearch] = useState("");
-  const [paymentStatusTab, setPaymentStatusTab] = useState<"ALL" | "SUCCEEDED" | "PENDING" | "FAILED">("ALL");
+  const [paymentStatusTab, setPaymentStatusTab] = useState<
+    "ALL" | "SUCCEEDED" | "PENDING" | "FAILED"
+  >("ALL");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const {
@@ -49,8 +55,14 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
     isFetching: isFetchingPayments,
     refetch: refetchPayments,
   } = useQuery({
-    queryKey: ["admin-payments"],
-    queryFn: () => paymentService.getAllPayments(),
+    queryKey: ["admin-payments", page, paymentStatusTab, paymentSearch],
+    queryFn: () =>
+      paymentService.getAllPayments({
+        page,
+        limit: 10,
+        status: paymentStatusTab === "ALL" ? undefined : paymentStatusTab,
+        searchTerm: paymentSearch || undefined,
+      }),
   });
 
   const payments: Payment[] = paymentsRes?.data || [];
@@ -92,17 +104,17 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
 
   const totalPlatformRevenue = payments.reduce(
     (sum, p) => sum + getMoneyValue(p.platformFee),
-    0
+    0,
   );
 
   const totalGrossVolume = payments.reduce(
     (sum, p) => sum + getMoneyValue(p.amountTotal),
-    0
+    0,
   );
 
   const totalTraderPayouts = payments.reduce(
     (sum, p) => sum + getMoneyValue(p.traderPayoutAmount),
-    0
+    0,
   );
 
   const filteredPayments = payments.filter((p) => {
@@ -112,7 +124,9 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
     const customerName = (p.booking?.customerName || "").toLowerCase();
 
     const matchesSearch =
-      bookingRef.includes(q) || intentId.includes(q) || customerName.includes(q);
+      bookingRef.includes(q) ||
+      intentId.includes(q) ||
+      customerName.includes(q);
 
     let matchesTab = true;
     if (paymentStatusTab !== "ALL") {
@@ -134,14 +148,20 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
     }
     if (s === "PENDING") {
       return (
-        <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30 gap-1 font-mono text-[11px]">
+        <Badge
+          variant="outline"
+          className="bg-amber-500/15 text-amber-400 border-amber-500/30 gap-1 font-mono text-[11px]"
+        >
           <Clock className="h-3 w-3" />
           PENDING
         </Badge>
       );
     }
     return (
-      <Badge variant="destructive" className="bg-red-500/15 text-red-400 border-red-500/30 gap-1 font-mono text-[11px]">
+      <Badge
+        variant="destructive"
+        className="bg-red-500/15 text-red-400 border-red-500/30 gap-1 font-mono text-[11px]"
+      >
         <ShieldAlert className="h-3 w-3" />
         {s}
       </Badge>
@@ -154,7 +174,10 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/40 pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Badge variant="outline" className="text-xs border-emerald-500/30 text-emerald-400 bg-emerald-500/10">
+            <Badge
+              variant="outline"
+              className="text-xs border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
+            >
               <CreditCard className="h-3.5 w-3.5 mr-1" /> Dedicated Admin Route
             </Badge>
           </div>
@@ -162,7 +185,9 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
             Platform Revenue & Transaction Audit
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Financial transaction audit table displaying gross customer charges, platform application fee deductions, and net trader payout transfers.
+            Financial transaction audit table displaying gross customer charges,
+            platform application fee deductions, and net trader payout
+            transfers.
           </p>
         </div>
 
@@ -174,7 +199,12 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
             disabled={isFetchingPayments}
             className="h-9 text-xs border-border/50 bg-background/40 hover:bg-background/80"
           >
-            <RefreshCw className={cn("h-3.5 w-3.5 mr-1.5", isFetchingPayments && "animate-spin")} />
+            <RefreshCw
+              className={cn(
+                "h-3.5 w-3.5 mr-1.5",
+                isFetchingPayments && "animate-spin",
+              )}
+            />
             Refresh Ledger
           </Button>
           <Link
@@ -191,12 +221,15 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
         <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Total Platform Revenue (£)</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                Total Platform Revenue (£)
+              </p>
               <p className="text-2xl font-bold text-emerald-400 font-mono">
                 {formatMoney(totalPlatformRevenue)}
               </p>
               <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                <TrendingUp className="h-3 w-3 text-emerald-400" /> Application fee deductions
+                <TrendingUp className="h-3 w-3 text-emerald-400" /> Application
+                fee deductions
               </p>
             </div>
             <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -208,11 +241,15 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
         <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Gross Charge Volume (£)</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                Gross Charge Volume (£)
+              </p>
               <p className="text-2xl font-bold text-foreground font-mono">
                 {formatMoney(totalGrossVolume)}
               </p>
-              <p className="text-[11px] text-muted-foreground">Total customer payments</p>
+              <p className="text-[11px] text-muted-foreground">
+                Total customer payments
+              </p>
             </div>
             <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
               <CreditCard className="h-5 w-5" />
@@ -223,11 +260,15 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
         <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Net Trader Payouts (£)</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                Net Trader Payouts (£)
+              </p>
               <p className="text-2xl font-bold text-indigo-400 font-mono">
                 {formatMoney(totalTraderPayouts)}
               </p>
-              <p className="text-[11px] text-muted-foreground">Transferred via Stripe Express</p>
+              <p className="text-[11px] text-muted-foreground">
+                Transferred via Stripe Express
+              </p>
             </div>
             <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
               <CreditCard className="h-5 w-5" />
@@ -245,9 +286,12 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
                 <CreditCard className="h-5 w-5" />
               </div>
               <div>
-                <CardTitle className="text-lg font-semibold">Transaction Audit Ledger</CardTitle>
+                <CardTitle className="text-lg font-semibold">
+                  Transaction Audit Ledger
+                </CardTitle>
                 <CardDescription className="text-xs text-muted-foreground">
-                  Ledger of gross customer payments, application fee deductions, and net trader payouts
+                  Ledger of gross customer payments, application fee deductions,
+                  and net trader payouts
                 </CardDescription>
               </div>
             </div>
@@ -255,20 +299,22 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
             {/* Status Filter & Search */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <div className="flex items-center p-1 rounded-lg bg-background/60 border border-border/50 text-xs shrink-0">
-                {(["ALL", "SUCCEEDED", "PENDING", "FAILED"] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setPaymentStatusTab(tab)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-md font-medium transition-all text-xs",
-                      paymentStatusTab === tab
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    {tab}
-                  </button>
-                ))}
+                {(["ALL", "SUCCEEDED", "PENDING", "FAILED"] as const).map(
+                  (tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setPaymentStatusTab(tab)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-md font-medium transition-all text-xs",
+                        paymentStatusTab === tab
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {tab}
+                    </button>
+                  ),
+                )}
               </div>
 
               <div className="relative w-full sm:w-56">
@@ -288,7 +334,10 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
           {isLoadingPayments && (
             <div className="space-y-3">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="p-4 rounded-xl border border-border/40 bg-card/40 flex justify-between items-center">
+                <div
+                  key={i}
+                  className="p-4 rounded-xl border border-border/40 bg-card/40 flex justify-between items-center"
+                >
                   <Skeleton className="h-5 w-32 bg-muted/40" />
                   <Skeleton className="h-5 w-24 bg-muted/30" />
                   <Skeleton className="h-5 w-24 bg-muted/30" />
@@ -319,17 +368,32 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
                     <th className="py-3 px-4">Platform Fee (£)</th>
                     <th className="py-3 px-4">Trader Net Payout (£)</th>
                     <th className="py-3 px-4">Date & Stripe Intent</th>
-                    <th className="py-3 px-4 text-right rounded-r-lg">Status</th>
+                    <th className="py-3 px-4 text-right rounded-r-lg">
+                      Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/30 text-xs">
                   {filteredPayments.map((payment) => (
-                    <tr key={payment.id} className="hover:bg-background/60 transition-colors group">
+                    <tr
+                      key={payment.id}
+                      className="hover:bg-background/60 transition-colors group"
+                    >
                       <td className="py-3.5 px-4 font-mono font-medium text-foreground">
                         <div className="flex items-center gap-1.5">
-                          <span>#{payment.bookingId ? payment.bookingId.slice(-8) : payment.id.slice(-8)}</span>
+                          <span>
+                            #
+                            {payment.bookingId
+                              ? payment.bookingId.slice(-8)
+                              : payment.id.slice(-8)}
+                          </span>
                           <button
-                            onClick={() => handleCopy(payment.bookingId || payment.id, "Booking ID")}
+                            onClick={() =>
+                              handleCopy(
+                                payment.bookingId || payment.id,
+                                "Booking ID",
+                              )
+                            }
                             className="text-muted-foreground hover:text-foreground transition-colors opacity-0 group-hover:opacity-100"
                             title="Copy Booking Ref"
                           >
@@ -362,12 +426,20 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
                       <td className="py-3.5 px-4 text-muted-foreground font-mono text-[11px]">
                         <div>{formatDate(payment.createdAt)}</div>
                         <div className="flex items-center gap-1 text-[10px] text-muted-foreground/80 mt-0.5">
-                          <span className="truncate max-w-[140px]" title={payment.stripePaymentIntentId}>
+                          <span
+                            className="truncate max-w-[140px]"
+                            title={payment.stripePaymentIntentId}
+                          >
                             {payment.stripePaymentIntentId || "pi_mock_123"}
                           </span>
                           {payment.stripePaymentIntentId && (
                             <button
-                              onClick={() => handleCopy(payment.stripePaymentIntentId, "Intent ID")}
+                              onClick={() =>
+                                handleCopy(
+                                  payment.stripePaymentIntentId,
+                                  "Intent ID",
+                                )
+                              }
                               className="hover:text-foreground transition-colors opacity-0 group-hover:opacity-100"
                             >
                               {copiedId === payment.stripePaymentIntentId ? (
@@ -389,6 +461,20 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
               </table>
             </div>
           )}
+
+          {/* NUMERIC PAGINATION FOOTER */}
+          <NumericPagination
+            page={page}
+            totalPages={
+              paymentsRes?.meta?.totalPages ||
+              paymentsRes?.meta?.totalPages ||
+              1
+            }
+            totalItems={paymentsRes?.meta?.total ?? filteredPayments.length}
+            itemName="transactions"
+            onPageChange={(newPage) => setPage(newPage)}
+            className="mt-4"
+          />
         </CardContent>
       </Card>
     </div>

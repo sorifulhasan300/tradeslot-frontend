@@ -33,7 +33,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+import { NumericPagination } from '@/components/shared/NumericPagination';
+
 export function BusinessBookingsView() {
+  const [page, setPage] = React.useState(1);
+  const pageSize = 10;
+
   const {
     schedule,
     totalScheduleCount,
@@ -45,6 +50,9 @@ export function BusinessBookingsView() {
     isFetching,
     refetchAll,
   } = useBusinessDashboard();
+
+  const paginatedSchedule = schedule.slice((page - 1) * pageSize, page * pageSize);
+  const totalPages = Math.ceil(schedule.length / pageSize) || 1;
 
   const getStatusBadge = (status: string) => {
     const st = status.toUpperCase();
@@ -203,7 +211,7 @@ export function BusinessBookingsView() {
                   </TableCell>
                 </TableRow>
               ) : (
-                schedule.map((item) => (
+                paginatedSchedule.map((item) => (
                   <TableRow key={item.id} className="border-border/30 hover:bg-muted/20 transition-colors">
                     {/* Customer Details */}
                     <TableCell className="text-xs">
@@ -274,6 +282,16 @@ export function BusinessBookingsView() {
             </TableBody>
           </Table>
         </div>
+
+        {/* NUMERIC PAGINATION FOOTER */}
+        <NumericPagination
+          page={page}
+          totalPages={totalPages}
+          totalItems={schedule.length}
+          itemName="agency bookings"
+          onPageChange={(p) => setPage(p)}
+          className="p-4 border-t border-border/40"
+        />
       </Card>
     </div>
   );

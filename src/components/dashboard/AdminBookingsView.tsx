@@ -15,6 +15,8 @@ import {
   Check,
   Copy,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import { format, parseISO, addMinutes } from "date-fns";
@@ -34,14 +36,18 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { NumericPagination } from "@/components/shared/NumericPagination";
 
 interface AdminBookingsViewProps {
   initialUser?: User | null;
 }
 
 export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
+  const [page, setPage] = useState(1);
   const [bookingSearch, setBookingSearch] = useState("");
-  const [bookingStatusTab, setBookingStatusTab] = useState<"ALL" | BookingStatus>("ALL");
+  const [bookingStatusTab, setBookingStatusTab] = useState<
+    "ALL" | BookingStatus
+  >("ALL");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const {
@@ -50,8 +56,14 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
     isFetching: isFetchingBookings,
     refetch: refetchBookings,
   } = useQuery({
-    queryKey: ["admin-bookings"],
-    queryFn: () => bookingService.getAllBookings(),
+    queryKey: ["admin-bookings", page, bookingStatusTab, bookingSearch],
+    queryFn: () =>
+      bookingService.getAllBookings({
+        page,
+        limit: 10,
+        status: bookingStatusTab === "ALL" ? undefined : bookingStatusTab,
+        search: bookingSearch || undefined,
+      }),
   });
 
   const bookings: Booking[] = bookingsRes?.data || [];
@@ -93,7 +105,10 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
     }
   };
 
-  const getBufferEndTimeString = (endTimeIso?: string, bufferMinutes = 30): string => {
+  const getBufferEndTimeString = (
+    endTimeIso?: string,
+    bufferMinutes = 30,
+  ): string => {
     if (!endTimeIso) return "N/A";
     try {
       const end = parseISO(endTimeIso);
@@ -117,10 +132,18 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
     const customer = (b.customerName || "").toLowerCase();
     const phone = (b.customerPhone || "").toLowerCase();
     const email = (b.customerEmail || "").toLowerCase();
-    const traderName = (b.trader?.displayName || b.trader?.user?.name || "").toLowerCase();
+    const traderName = (
+      b.trader?.displayName ||
+      b.trader?.user?.name ||
+      ""
+    ).toLowerCase();
 
     const matchesSearch =
-      refId.includes(q) || customer.includes(q) || phone.includes(q) || email.includes(q) || traderName.includes(q);
+      refId.includes(q) ||
+      customer.includes(q) ||
+      phone.includes(q) ||
+      email.includes(q) ||
+      traderName.includes(q);
 
     let matchesStatus = true;
     if (bookingStatusTab !== "ALL") {
@@ -130,9 +153,15 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
     return matchesSearch && matchesStatus;
   });
 
-  const confirmedCount = bookings.filter((b) => String(b.status).toUpperCase() === "CONFIRMED").length;
-  const completedCount = bookings.filter((b) => String(b.status).toUpperCase() === "COMPLETED").length;
-  const pendingCount = bookings.filter((b) => String(b.status).toUpperCase() === "PENDING").length;
+  const confirmedCount = bookings.filter(
+    (b) => String(b.status).toUpperCase() === "CONFIRMED",
+  ).length;
+  const completedCount = bookings.filter(
+    (b) => String(b.status).toUpperCase() === "COMPLETED",
+  ).length;
+  const pendingCount = bookings.filter(
+    (b) => String(b.status).toUpperCase() === "PENDING",
+  ).length;
 
   const getBookingStatusBadge = (status: BookingStatus | string) => {
     const s = String(status).toUpperCase();
@@ -154,14 +183,20 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
     }
     if (s === "PENDING") {
       return (
-        <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30 gap-1 font-mono text-[11px]">
+        <Badge
+          variant="outline"
+          className="bg-amber-500/15 text-amber-400 border-amber-500/30 gap-1 font-mono text-[11px]"
+        >
           <Clock className="h-3 w-3" />
           PENDING
         </Badge>
       );
     }
     return (
-      <Badge variant="destructive" className="bg-red-500/15 text-red-400 border-red-500/30 gap-1 font-mono text-[11px]">
+      <Badge
+        variant="destructive"
+        className="bg-red-500/15 text-red-400 border-red-500/30 gap-1 font-mono text-[11px]"
+      >
         <ShieldAlert className="h-3 w-3" />
         {s}
       </Badge>
@@ -174,7 +209,10 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/40 pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Badge variant="outline" className="text-xs border-indigo-500/30 text-indigo-400 bg-indigo-500/10">
+            <Badge
+              variant="outline"
+              className="text-xs border-indigo-500/30 text-indigo-400 bg-indigo-500/10"
+            >
               <Calendar className="h-3.5 w-3.5 mr-1" /> Dedicated Admin Route
             </Badge>
           </div>
@@ -182,7 +220,8 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
             System-wide Booking Audit Panel
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Audit system bookings across all network specialists, customer contact details, deposit fees, and 30-min buffer gaps.
+            Audit system bookings across all network specialists, customer
+            contact details, deposit fees, and 30-min buffer gaps.
           </p>
         </div>
 
@@ -194,7 +233,12 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
             disabled={isFetchingBookings}
             className="h-9 text-xs border-border/50 bg-background/40 hover:bg-background/80"
           >
-            <RefreshCw className={cn("h-3.5 w-3.5 mr-1.5", isFetchingBookings && "animate-spin")} />
+            <RefreshCw
+              className={cn(
+                "h-3.5 w-3.5 mr-1.5",
+                isFetchingBookings && "animate-spin",
+              )}
+            />
             Refresh Bookings
           </Button>
           <Link
@@ -211,8 +255,12 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
         <Card className="border-border/50 bg-card/60 backdrop-blur-sm">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Total Bookings</p>
-              <p className="text-2xl font-bold text-foreground">{bookings.length}</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                Total Bookings
+              </p>
+              <p className="text-2xl font-bold text-foreground">
+                {bookings.length}
+              </p>
               <p className="text-[11px] text-muted-foreground">System-wide</p>
             </div>
             <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
@@ -224,9 +272,15 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
         <Card className="border-border/50 bg-card/60 backdrop-blur-sm">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Confirmed</p>
-              <p className="text-2xl font-bold text-blue-400">{confirmedCount}</p>
-              <p className="text-[11px] text-blue-400/80">Active appointments</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                Confirmed
+              </p>
+              <p className="text-2xl font-bold text-blue-400">
+                {confirmedCount}
+              </p>
+              <p className="text-[11px] text-blue-400/80">
+                Active appointments
+              </p>
             </div>
             <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
               <CheckCircle2 className="h-5 w-5" />
@@ -237,8 +291,12 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
         <Card className="border-border/50 bg-card/60 backdrop-blur-sm">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Completed</p>
-              <p className="text-2xl font-bold text-emerald-400">{completedCount}</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                Completed
+              </p>
+              <p className="text-2xl font-bold text-emerald-400">
+                {completedCount}
+              </p>
               <p className="text-[11px] text-emerald-400/80">Fulfilled jobs</p>
             </div>
             <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -250,9 +308,15 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
         <Card className="border-border/50 bg-card/60 backdrop-blur-sm">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Pending / Other</p>
-              <p className="text-2xl font-bold text-amber-400">{pendingCount}</p>
-              <p className="text-[11px] text-amber-400/80">Awaiting confirmation</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                Pending / Other
+              </p>
+              <p className="text-2xl font-bold text-amber-400">
+                {pendingCount}
+              </p>
+              <p className="text-[11px] text-amber-400/80">
+                Awaiting confirmation
+              </p>
             </div>
             <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
               <Clock className="h-5 w-5" />
@@ -270,9 +334,12 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
                 <CalendarCheck className="h-5 w-5" />
               </div>
               <div>
-                <CardTitle className="text-lg font-semibold">System-wide Booking Audit</CardTitle>
+                <CardTitle className="text-lg font-semibold">
+                  System-wide Booking Audit
+                </CardTitle>
                 <CardDescription className="text-xs text-muted-foreground">
-                  Data table of all system appointments, travel buffer windows, and fee structures
+                  Data table of all system appointments, travel buffer windows,
+                  and fee structures
                 </CardDescription>
               </div>
             </div>
@@ -280,7 +347,15 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
             {/* Status Filter & Search */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <div className="flex items-center p-1 rounded-lg bg-background/60 border border-border/50 text-xs shrink-0 flex-wrap">
-                {(["ALL", "CONFIRMED", "PENDING", "COMPLETED", "CANCELLED"] as const).map((st) => (
+                {(
+                  [
+                    "ALL",
+                    "CONFIRMED",
+                    "PENDING",
+                    "COMPLETED",
+                    "CANCELLED",
+                  ] as const
+                ).map((st) => (
                   <button
                     key={st}
                     onClick={() => setBookingStatusTab(st)}
@@ -288,7 +363,7 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
                       "px-2.5 py-1 rounded-md font-medium transition-all text-xs",
                       bookingStatusTab === st
                         ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
+                        : "text-muted-foreground hover:text-foreground",
                     )}
                   >
                     {st}
@@ -313,7 +388,10 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
           {isLoadingBookings && (
             <div className="space-y-3">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="p-4 rounded-xl border border-border/40 bg-card/40 flex justify-between items-center">
+                <div
+                  key={i}
+                  className="p-4 rounded-xl border border-border/40 bg-card/40 flex justify-between items-center"
+                >
                   <Skeleton className="h-5 w-32 bg-muted/40" />
                   <Skeleton className="h-5 w-40 bg-muted/30" />
                   <Skeleton className="h-5 w-24 bg-muted/30" />
@@ -339,27 +417,40 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-border/40 text-[11px] font-mono uppercase tracking-wider text-muted-foreground bg-muted/20">
-                    <th className="py-3 px-4 rounded-l-lg">Booking ID & Timeline</th>
+                    <th className="py-3 px-4 rounded-l-lg">
+                      Booking ID & Timeline
+                    </th>
                     <th className="py-3 px-4">Assigned Trader</th>
                     <th className="py-3 px-4">Customer Contacts</th>
                     <th className="py-3 px-4">Deposit Fee</th>
                     <th className="py-3 px-4">30-min Travel Buffer Gap</th>
-                    <th className="py-3 px-4 text-right rounded-r-lg">Status</th>
+                    <th className="py-3 px-4 text-right rounded-r-lg">
+                      Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/30 text-xs">
                   {filteredBookings.map((booking) => {
-                    const traderName = booking.trader?.displayName || booking.trader?.user?.name || "Assigned Trader";
-                    const depositFee = booking.flatBookingFee || booking.feeAmount || 0;
+                    const traderName =
+                      booking.trader?.displayName ||
+                      booking.trader?.user?.name ||
+                      "Assigned Trader";
+                    const depositFee =
+                      booking.flatBookingFee || booking.feeAmount || 0;
                     const bufferMinutes = booking.bufferMinutes || 30;
 
                     return (
-                      <tr key={booking.id} className="hover:bg-background/60 transition-colors group">
+                      <tr
+                        key={booking.id}
+                        className="hover:bg-background/60 transition-colors group"
+                      >
                         <td className="py-3.5 px-4 font-mono font-medium text-foreground">
                           <div className="flex items-center gap-1.5">
                             <span>#{booking.id.slice(-8)}</span>
                             <button
-                              onClick={() => handleCopy(booking.id, "Booking ID")}
+                              onClick={() =>
+                                handleCopy(booking.id, "Booking ID")
+                              }
                               className="text-muted-foreground hover:text-foreground transition-colors opacity-0 group-hover:opacity-100"
                               title="Copy Booking ID"
                             >
@@ -410,11 +501,17 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
                               variant="outline"
                               className="bg-indigo-500/10 text-indigo-300 border-indigo-500/30 gap-1 text-[10px] font-mono"
                             >
-                              <Clock className="h-3 w-3 text-indigo-400" />
-                              +{bufferMinutes}m Travel Buffer Gap Applied
+                              <Clock className="h-3 w-3 text-indigo-400" />+
+                              {bufferMinutes}m Travel Buffer Gap Applied
                             </Badge>
                             <div className="text-[10px] font-mono text-muted-foreground">
-                              Window: {formatTime(booking.startTime)} - {formatTime(booking.endTime)} (Buffer ends {getBufferEndTimeString(booking.endTime, bufferMinutes)})
+                              Window: {formatTime(booking.startTime)} -{" "}
+                              {formatTime(booking.endTime)} (Buffer ends{" "}
+                              {getBufferEndTimeString(
+                                booking.endTime,
+                                bufferMinutes,
+                              )}
+                              )
                             </div>
                           </div>
                         </td>
@@ -429,6 +526,20 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
               </table>
             </div>
           )}
+
+          {/* NUMERIC PAGINATION FOOTER */}
+          <NumericPagination
+            page={page}
+            totalPages={
+              bookingsRes?.meta?.totalPages ||
+              bookingsRes?.meta?.totalPages ||
+              1
+            }
+            totalItems={bookingsRes?.meta?.total ?? filteredBookings.length}
+            itemName="system bookings"
+            onPageChange={(newPage) => setPage(newPage)}
+            className="mt-4"
+          />
         </CardContent>
       </Card>
     </div>

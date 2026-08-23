@@ -17,8 +17,12 @@ export default function FindAndBookPage() {
 
   // Dynamically fetch real traders using TanStack Query
   const { data: response, isLoading, isError, error } = useQuery({
-    queryKey: ['traders'],
-    queryFn: () => authService.getTraders(),
+    queryKey: ['traders', query, location],
+    queryFn: () =>
+      authService.getTraders({
+        trade: query || undefined,
+        postcodeOrCity: location || undefined,
+      }),
   });
 
   const rawTraders = response?.data || [];

@@ -71,14 +71,8 @@ function StripeCheckoutForm({
     setIsProcessing(true);
 
     if (!stripe || !elements) {
-      // Fallback for environment without real Stripe API key connected
-      setTimeout(() => {
-        setIsProcessing(false);
-        toast.success(
-          `Payment deposit of £${amount.toFixed(2)} authorized successfully!`,
-        );
-        onSuccess();
-      }, 1000);
+      setIsProcessing(false);
+      toast.error("Stripe Checkout is initializing. Please re-enter card details.");
       return;
     }
 
@@ -86,7 +80,7 @@ function StripeCheckoutForm({
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/customer/dashboard`,
+          return_url: `${window.location.origin}/customer/dashboard?payment=success`,
         },
         redirect: "if_required",
       });
@@ -108,9 +102,7 @@ function StripeCheckoutForm({
       }
     } catch (err: any) {
       setIsProcessing(false);
-      // Dev/fallback mode if Elements submit fails due to dummy key
-      toast.success(`Deposit payment authorized (£${amount.toFixed(2)})`);
-      onSuccess();
+      toast.error(err?.message || "Payment submission failed. Please try again.");
     }
   };
 
@@ -250,25 +242,37 @@ export default function CustomerTraderBookingPage() {
           },
         ];
 
-  // 3. Payment Intent Initialization Mutation
+  // 3. Payment Intent / Checkout Session Initialization Mutation
   const createPaymentIntentMutation = useMutation({
     mutationFn: (payload: { bookingId: string; amount: number }) =>
       paymentService.createPaymentIntent(payload),
     onSuccess: (res) => {
+      const checkoutUrl =
+        res?.data?.checkoutUrl || (res as any)?.checkoutUrl || (res as any)?.data?.checkoutUrl;
+
+      if (checkoutUrl) {
+        toast.success("Redirecting to official Stripe Checkout Page...");
+        window.location.href = checkoutUrl;
+        return;
+      }
+
       const secret =
         res?.data?.clientSecret ||
-        (res as any)?.clientSecret ||
-        `pi_mock_secret_${Date.now()}`;
-      setClientSecret(secret);
-      toast.success(
-        "Deposit PaymentIntent initialized! Complete checkout below.",
-      );
+        (res as any)?.clientSecret;
+
+      if (secret) {
+        setClientSecret(secret);
+        toast.success(
+          "Deposit PaymentIntent initialized! Complete checkout below.",
+        );
+      } else {
+        toast.info("Booking slot reserved. Please complete payment.");
+      }
     },
     onError: (error: any) => {
-      // Fallback for mock/dev environment
-      const mockSecret = `pi_mock_secret_${Date.now()}`;
-      setClientSecret(mockSecret);
-      toast.info("Generated Stripe deposit payment intent.");
+      toast.error(
+        error?.message || "Payment initialization failed. Please ensure Trader has connected Stripe.",
+      );
     },
   });
 

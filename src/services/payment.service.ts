@@ -76,10 +76,10 @@ export const paymentService = {
    */
   async createPaymentIntent(
     payload: string | { bookingId: string; amount?: number },
-  ): Promise<ApiResponse<{ clientSecret: string; paymentIntentId: string }>> {
+  ): Promise<ApiResponse<{ clientSecret?: string; paymentIntentId?: string; checkoutUrl?: string }>> {
     const body = typeof payload === "string" ? { bookingId: payload } : payload;
     const response = await apiClient.post<
-      ApiResponse<{ clientSecret: string; paymentIntentId: string }>
+      ApiResponse<{ clientSecret?: string; paymentIntentId?: string; checkoutUrl?: string }>
     >("/payments/create-intent", body);
     return response.data;
   },

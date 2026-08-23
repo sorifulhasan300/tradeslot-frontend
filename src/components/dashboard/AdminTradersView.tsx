@@ -31,6 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { NumericPagination } from "@/components/shared/NumericPagination";
 
 interface AdminTradersViewProps {
   initialUser?: User | null;
@@ -58,6 +59,7 @@ export interface TraderNetworkItem {
 }
 
 export function AdminTradersView({ initialUser }: AdminTradersViewProps) {
+  const [page, setPage] = useState(1);
   const [traderSearch, setTraderSearch] = useState("");
   const [traderFilterTab, setTraderFilterTab] = useState<"ALL" | "CONNECTED" | "ACTION_REQUIRED">("ALL");
 
@@ -67,8 +69,13 @@ export function AdminTradersView({ initialUser }: AdminTradersViewProps) {
     isFetching: isFetchingTraders,
     refetch: refetchTraders,
   } = useQuery({
-    queryKey: ["admin-traders"],
-    queryFn: () => authService.getTraders(),
+    queryKey: ["admin-traders", page, traderSearch],
+    queryFn: () =>
+      authService.getTraders({
+        page,
+        limit: 10,
+        searchTerm: traderSearch || undefined,
+      }),
   });
 
   const traders: TraderNetworkItem[] = tradersRes?.data || [];
@@ -360,6 +367,16 @@ export function AdminTradersView({ initialUser }: AdminTradersViewProps) {
               </table>
             </div>
           )}
+
+          {/* NUMERIC PAGINATION FOOTER */}
+          <NumericPagination
+            page={page}
+            totalPages={tradersRes?.meta?.totalPage || tradersRes?.meta?.totalPages || 1}
+            totalItems={tradersRes?.meta?.total ?? filteredTraders.length}
+            itemName="traders"
+            onPageChange={(newPage) => setPage(newPage)}
+            className="mt-4"
+          />
         </CardContent>
       </Card>
     </div>

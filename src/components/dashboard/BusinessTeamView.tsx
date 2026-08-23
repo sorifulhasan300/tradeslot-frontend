@@ -35,7 +35,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+import { NumericPagination } from '@/components/shared/NumericPagination';
+
 export function BusinessTeamView() {
+  const [page, setPage] = React.useState(1);
+  const pageSize = 10;
+
   const {
     roster,
     totalRosterCount,
@@ -46,6 +51,9 @@ export function BusinessTeamView() {
     isFetching,
     refetchAll,
   } = useBusinessDashboard();
+
+  const paginatedRoster = roster.slice((page - 1) * pageSize, page * pageSize);
+  const totalPages = Math.ceil(roster.length / pageSize) || 1;
 
   return (
     <div className="space-y-6 pb-10 select-none">
@@ -173,7 +181,7 @@ export function BusinessTeamView() {
                   </TableCell>
                 </TableRow>
               ) : (
-                roster.map((member) => (
+                paginatedRoster.map((member) => (
                   <TableRow key={member.id} className="border-border/30 hover:bg-muted/20 transition-colors">
                     <TableCell className="font-medium text-xs text-foreground">
                       <div className="flex flex-col">
@@ -240,6 +248,16 @@ export function BusinessTeamView() {
             </TableBody>
           </Table>
         </div>
+
+        {/* NUMERIC PAGINATION FOOTER */}
+        <NumericPagination
+          page={page}
+          totalPages={totalPages}
+          totalItems={roster.length}
+          itemName="technicians"
+          onPageChange={(p) => setPage(p)}
+          className="p-4 border-t border-border/40"
+        />
       </Card>
     </div>
   );
