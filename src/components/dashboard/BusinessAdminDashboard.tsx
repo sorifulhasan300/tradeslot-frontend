@@ -252,11 +252,11 @@ export function BusinessAdminDashboard({ initialUser }: BusinessAdminDashboardPr
                 </>
               )}
             </Button>
-            <Button variant="outline" size="sm" asChild className="h-9 text-xs border-border/50">
-              <Link href="/business/payouts">
+            <Link href="/business/payouts">
+              <Button variant="outline" size="sm" className="h-9 text-xs border-border/50">
                 View Payouts Page <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
-              </Link>
-            </Button>
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
@@ -270,11 +270,11 @@ export function BusinessAdminDashboard({ initialUser }: BusinessAdminDashboardPr
             </h2>
             <p className="text-xs text-muted-foreground">Active technicians operating under this business agency.</p>
           </div>
-          <Button variant="ghost" size="sm" asChild className="text-xs text-blue-400 hover:text-blue-300">
-            <Link href="/business/team">
+          <Link href="/business/team">
+            <Button variant="ghost" size="sm" className="text-xs text-blue-400 hover:text-blue-300">
               Full Roster Page <ArrowRight className="h-3.5 w-3.5 ml-1" />
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         </div>
 
         <Card className="border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden shadow-sm">
@@ -337,11 +337,11 @@ export function BusinessAdminDashboard({ initialUser }: BusinessAdminDashboardPr
             </h2>
             <p className="text-xs text-muted-foreground">Agency bookings with mandatory 30-minute travel gaps.</p>
           </div>
-          <Button variant="ghost" size="sm" asChild className="text-xs text-indigo-400 hover:text-indigo-300">
-            <Link href="/business/bookings">
+          <Link href="/business/bookings">
+            <Button variant="ghost" size="sm" className="text-xs text-indigo-400 hover:text-indigo-300">
               Full Schedule Page <ArrowRight className="h-3.5 w-3.5 ml-1" />
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         </div>
 
         <Card className="border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden shadow-sm">
