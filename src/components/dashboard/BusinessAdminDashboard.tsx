@@ -128,7 +128,7 @@ export function BusinessAdminDashboard({ initialUser }: BusinessAdminDashboardPr
       {/* 2. COMPANY EXECUTIVE METRICS CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Metric 1: Total Company Revenue (£) */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md hover:border-emerald-500/40 transition-all">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-5 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -154,7 +154,7 @@ export function BusinessAdminDashboard({ initialUser }: BusinessAdminDashboardPr
         </Card>
 
         {/* Metric 2: Active Team Members */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md hover:border-blue-500/40 transition-all">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-5 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -181,7 +181,7 @@ export function BusinessAdminDashboard({ initialUser }: BusinessAdminDashboardPr
         </Card>
 
         {/* Metric 3: Company Active Bookings */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md hover:border-indigo-500/40 transition-all sm:col-span-2 lg:col-span-1">
+        <Card className="glass-card glass-card-hover sm:col-span-2 lg:col-span-1">
           <CardContent className="p-5 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -209,7 +209,7 @@ export function BusinessAdminDashboard({ initialUser }: BusinessAdminDashboardPr
       </div>
 
       {/* 3. BUSINESS STRIPE PAYOUTS BANNER */}
-      <Card className="border-border/50 bg-gradient-to-r from-card/80 via-card/60 to-amber-950/20 backdrop-blur-sm shadow-md overflow-hidden">
+      <Card className="glass-card overflow-hidden">
         <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
@@ -277,7 +277,7 @@ export function BusinessAdminDashboard({ initialUser }: BusinessAdminDashboardPr
           </Link>
         </div>
 
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden shadow-sm">
+        <Card className="glass-card overflow-hidden">
           <Table>
             <TableHeader className="bg-muted/30">
               <TableRow className="border-border/40">
@@ -344,7 +344,7 @@ export function BusinessAdminDashboard({ initialUser }: BusinessAdminDashboardPr
           </Link>
         </div>
 
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden shadow-sm">
+        <Card className="glass-card overflow-hidden">
           <Table>
             <TableHeader className="bg-muted/30">
               <TableRow className="border-border/40">

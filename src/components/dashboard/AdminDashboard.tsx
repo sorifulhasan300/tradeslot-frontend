@@ -140,7 +140,7 @@ export function AdminDashboard({ initialUser }: AdminDashboardProps) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/40 pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-400 bg-purple-500/10">
+            <Badge variant="outline" className="text-xs border-primary/20 text-primary bg-primary/10">
               <ShieldCheck className="h-3.5 w-3.5 mr-1" /> Platform Executive Control Center
             </Badge>
           </div>
@@ -173,7 +173,7 @@ export function AdminDashboard({ initialUser }: AdminDashboardProps) {
       {/* EXECUTIVE METRICS CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Platform Revenue */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md hover:border-emerald-500/40 transition-all">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground">Total Platform Revenue (£)</p>
@@ -193,7 +193,7 @@ export function AdminDashboard({ initialUser }: AdminDashboardProps) {
         </Card>
 
         {/* Total Active Traders */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md hover:border-blue-500/40 transition-all">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground">Total Active Traders</p>
@@ -212,7 +212,7 @@ export function AdminDashboard({ initialUser }: AdminDashboardProps) {
         </Card>
 
         {/* Total System Bookings */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md hover:border-indigo-500/40 transition-all">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground">Total System Bookings</p>
@@ -231,7 +231,7 @@ export function AdminDashboard({ initialUser }: AdminDashboardProps) {
         </Card>
 
         {/* Stripe Connection Rate */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md hover:border-purple-500/40 transition-all">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground">Stripe Connection Rate</p>
@@ -259,13 +259,13 @@ export function AdminDashboard({ initialUser }: AdminDashboardProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Sub-Route 1: Trader Network Management */}
-          <Card className="border-border/50 bg-card/60 backdrop-blur-sm hover:border-blue-500/50 transition-all flex flex-col justify-between shadow-lg">
+          <Card className="glass-card glass-card-hover flex flex-col justify-between">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
                   <Users className="h-6 w-6" />
                 </div>
-                <Badge variant="outline" className="text-[11px] border-blue-500/30 text-blue-400 bg-blue-500/5">
+                <Badge variant="outline" className="text-[11px] border-primary/20 text-primary bg-primary/10">
                   Route: /admin/traders
                 </Badge>
               </div>
@@ -287,7 +287,7 @@ export function AdminDashboard({ initialUser }: AdminDashboardProps) {
               </div>
               <Link
                 href="/admin/traders"
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white font-medium text-xs shadow-md hover:bg-blue-500 transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-xs shadow-md hover:bg-primary/90 transition-colors"
               >
                 Open Trader Network Page <ArrowRight className="h-4 w-4" />
               </Link>
@@ -295,13 +295,13 @@ export function AdminDashboard({ initialUser }: AdminDashboardProps) {
           </Card>
 
           {/* Sub-Route 2: System-wide Booking Audit */}
-          <Card className="border-border/50 bg-card/60 backdrop-blur-sm hover:border-indigo-500/50 transition-all flex flex-col justify-between shadow-lg">
+          <Card className="glass-card glass-card-hover flex flex-col justify-between">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                   <Calendar className="h-6 w-6" />
                 </div>
-                <Badge variant="outline" className="text-[11px] border-indigo-500/30 text-indigo-400 bg-indigo-500/5">
+                <Badge variant="outline" className="text-[11px] border-primary/20 text-primary bg-primary/10">
                   Route: /admin/bookings
                 </Badge>
               </div>
@@ -323,7 +323,7 @@ export function AdminDashboard({ initialUser }: AdminDashboardProps) {
               </div>
               <Link
                 href="/admin/bookings"
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-600 text-white font-medium text-xs shadow-md hover:bg-indigo-500 transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-xs shadow-md hover:bg-primary/90 transition-colors"
               >
                 Open Booking Audit Page <ArrowRight className="h-4 w-4" />
               </Link>
@@ -331,13 +331,13 @@ export function AdminDashboard({ initialUser }: AdminDashboardProps) {
           </Card>
 
           {/* Sub-Route 3: Platform Revenue Audit */}
-          <Card className="border-border/50 bg-card/60 backdrop-blur-sm hover:border-emerald-500/50 transition-all flex flex-col justify-between shadow-lg">
+          <Card className="glass-card glass-card-hover flex flex-col justify-between">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   <CreditCard className="h-6 w-6" />
                 </div>
-                <Badge variant="outline" className="text-[11px] border-emerald-500/30 text-emerald-400 bg-emerald-500/5">
+                <Badge variant="outline" className="text-[11px] border-primary/20 text-primary bg-primary/10">
                   Route: /admin/revenue
                 </Badge>
               </div>
@@ -359,7 +359,7 @@ export function AdminDashboard({ initialUser }: AdminDashboardProps) {
               </div>
               <Link
                 href="/admin/revenue"
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 text-white font-medium text-xs shadow-md hover:bg-emerald-500 transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-xs shadow-md hover:bg-primary/90 transition-colors"
               >
                 Open Revenue Audit Page <ArrowRight className="h-4 w-4" />
               </Link>

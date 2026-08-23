@@ -90,7 +90,7 @@ export function BusinessTeamView() {
 
       {/* Summary Banner */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground font-medium uppercase">Total Technicians</p>
@@ -102,7 +102,7 @@ export function BusinessTeamView() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground font-medium uppercase">Stripe Express Active</p>
@@ -114,7 +114,7 @@ export function BusinessTeamView() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground font-medium uppercase">Active Dispatch Jobs</p>
@@ -130,7 +130,7 @@ export function BusinessTeamView() {
       </div>
 
       {/* Controls & Table */}
-      <Card className="border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden shadow-md">
+      <Card className="glass-card overflow-hidden">
         <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/30">
           <div>
             <CardTitle className="text-base font-bold text-foreground">Technician Network</CardTitle>

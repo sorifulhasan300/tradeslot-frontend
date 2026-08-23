@@ -211,7 +211,7 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
           <div className="flex items-center gap-2 mb-1">
             <Badge
               variant="outline"
-              className="text-xs border-indigo-500/30 text-indigo-400 bg-indigo-500/10"
+              className="text-xs border-primary/20 text-primary bg-primary/10"
             >
               <Calendar className="h-3.5 w-3.5 mr-1" /> Dedicated Admin Route
             </Badge>
@@ -252,7 +252,7 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
 
       {/* METRIC SUMMARY CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground">
@@ -269,7 +269,7 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground">
@@ -288,7 +288,7 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground">
@@ -305,7 +305,7 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground">
@@ -326,7 +326,7 @@ export function AdminBookingsView({ initialUser }: AdminBookingsViewProps) {
       </div>
 
       {/* BOOKING AUDIT PANEL */}
-      <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-xl">
+      <Card className="glass-card">
         <CardHeader className="pb-4 border-b border-border/40">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">

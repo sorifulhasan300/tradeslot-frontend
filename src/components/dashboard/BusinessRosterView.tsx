@@ -245,7 +245,7 @@ export function BusinessRosterView() {
       {/* Roster Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Total Active Technicians Card */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -261,7 +261,7 @@ export function BusinessRosterView() {
         </Card>
 
         {/* Coverage Zones Count Card */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -277,7 +277,7 @@ export function BusinessRosterView() {
         </Card>
 
         {/* Total Assigned Bookings Card */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -294,7 +294,7 @@ export function BusinessRosterView() {
       </div>
 
       {/* Roster Controls & Technician Table */}
-      <Card className="border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden shadow-xl">
+      <Card className="glass-card overflow-hidden">
         <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/30">
           <div>
             <CardTitle className="text-base font-bold text-foreground">Technician Roster Directory</CardTitle>

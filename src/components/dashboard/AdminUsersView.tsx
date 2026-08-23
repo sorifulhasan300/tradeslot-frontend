@@ -225,7 +225,7 @@ export function AdminUsersView({ initialUser }: AdminUsersViewProps) {
           <div className="flex items-center gap-2 mb-1">
             <Badge
               variant="outline"
-              className="text-xs border-purple-500/30 text-purple-400 bg-purple-500/10"
+              className="text-xs border-primary/20 text-primary bg-primary/10"
             >
               <UserCog className="h-3.5 w-3.5 mr-1" /> Dedicated Admin Route
             </Badge>
@@ -263,7 +263,7 @@ export function AdminUsersView({ initialUser }: AdminUsersViewProps) {
       {/* METRICS OVERVIEW CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Users */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground">Total Users</p>
@@ -277,7 +277,7 @@ export function AdminUsersView({ initialUser }: AdminUsersViewProps) {
         </Card>
 
         {/* Total Customers */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground">Total Customers</p>
@@ -291,7 +291,7 @@ export function AdminUsersView({ initialUser }: AdminUsersViewProps) {
         </Card>
 
         {/* Total Traders */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground">Total Traders</p>
@@ -305,7 +305,7 @@ export function AdminUsersView({ initialUser }: AdminUsersViewProps) {
         </Card>
 
         {/* Total Business Admins */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground">Total Business Admins</p>
@@ -320,7 +320,7 @@ export function AdminUsersView({ initialUser }: AdminUsersViewProps) {
       </div>
 
       {/* USER AUDIT TABLE CARD */}
-      <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-xl">
+      <Card className="glass-card">
         <CardHeader className="pb-4 border-b border-border/40">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">

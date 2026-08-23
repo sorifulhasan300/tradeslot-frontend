@@ -176,7 +176,7 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
           <div className="flex items-center gap-2 mb-1">
             <Badge
               variant="outline"
-              className="text-xs border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
+              className="text-xs border-primary/20 text-primary bg-primary/10"
             >
               <CreditCard className="h-3.5 w-3.5 mr-1" /> Dedicated Admin Route
             </Badge>
@@ -218,7 +218,7 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
 
       {/* FINANCIAL SUMMARY CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground">
@@ -238,7 +238,7 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground">
@@ -257,7 +257,7 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground">
@@ -278,7 +278,7 @@ export function AdminRevenueView({ initialUser }: AdminRevenueViewProps) {
       </div>
 
       {/* REVENUE AUDIT TABLE */}
-      <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-xl">
+      <Card className="glass-card">
         <CardHeader className="pb-4 border-b border-border/40">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">

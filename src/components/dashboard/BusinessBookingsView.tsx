@@ -124,7 +124,7 @@ export function BusinessBookingsView() {
       </div>
 
       {/* Buffer Gap Policy Card */}
-      <Card className="border-purple-500/30 bg-purple-500/5 backdrop-blur-sm">
+      <Card className="glass-card">
         <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-start gap-3">
             <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400 shrink-0 mt-0.5">
@@ -144,7 +144,7 @@ export function BusinessBookingsView() {
       </Card>
 
       {/* Filter & Schedule Table */}
-      <Card className="border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden shadow-md">
+      <Card className="glass-card overflow-hidden">
         <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/30">
           <div>
             <CardTitle className="text-base font-bold text-foreground">Agency Booking Ledger</CardTitle>
