@@ -3,6 +3,7 @@ export interface ApiMeta {
   limit?: number;
   total?: number;
   totalPages?: number;
+  totalPage?: number;
 }
 
 export interface ApiResponse<T = any> {
