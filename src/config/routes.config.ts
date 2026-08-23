@@ -42,9 +42,9 @@ export const BUSINESS_DEFAULT_ROUTE = "/business/dashboard";
 // Business Admin-specific navigation links
 export const BUSINESS_NAV_ITEMS: NavItem[] = [
   { label: "Agency Dashboard", href: "/business/dashboard", icon: LayoutDashboard, roles: ["BUSINESS_ADMIN"] },
-  { label: "Team Member Roster", href: "/business/dashboard#roster", icon: Users, roles: ["BUSINESS_ADMIN"] },
-  { label: "Schedule & Buffer Gap", href: "/business/dashboard#schedule", icon: Calendar, roles: ["BUSINESS_ADMIN"] },
-  { label: "Stripe Payouts", href: "/business/dashboard#payouts", icon: CreditCard, roles: ["BUSINESS_ADMIN"] },
+  { label: "Team Member Roster", href: "/business/team", icon: Users, roles: ["BUSINESS_ADMIN"] },
+  { label: "Schedule & Buffer Gap", href: "/business/bookings", icon: Calendar, roles: ["BUSINESS_ADMIN"] },
+  { label: "Stripe Payouts", href: "/business/payouts", icon: CreditCard, roles: ["BUSINESS_ADMIN"] },
 ];
 
 // Platform Admin-specific navigation links
@@ -143,6 +143,21 @@ export const ROUTE_CONFIG: Record<string, RouteMeta> = {
   "/business/dashboard": {
     title: "Business Executive Dashboard",
     breadcrumbs: ["Home", "Business", "Dashboard"],
+    allowedRoles: ["BUSINESS_ADMIN"],
+  },
+  "/business/team": {
+    title: "Team Member Roster & Dispatch",
+    breadcrumbs: ["Home", "Business", "Team Roster"],
+    allowedRoles: ["BUSINESS_ADMIN"],
+  },
+  "/business/bookings": {
+    title: "Company Schedule & Buffer Gap Monitor",
+    breadcrumbs: ["Home", "Business", "Schedule & Buffer"],
+    allowedRoles: ["BUSINESS_ADMIN"],
+  },
+  "/business/payouts": {
+    title: "Business Stripe Express Payouts",
+    breadcrumbs: ["Home", "Business", "Payouts"],
     allowedRoles: ["BUSINESS_ADMIN"],
   },
   "/dashboard": {
