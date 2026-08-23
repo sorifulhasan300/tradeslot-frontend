@@ -8,6 +8,7 @@ import {
   TRADER_NAV_ITEMS,
   CUSTOMER_NAV_ITEMS,
   ADMIN_NAV_ITEMS,
+  BUSINESS_NAV_ITEMS,
   getDefaultRedirectForRole,
 } from '@/config/routes.config';
 import { Badge } from '@/components/ui/badge';
@@ -32,7 +33,14 @@ export function Sidebar({ onNavClick }: SidebarProps) {
 
   const isCustomer = user?.role === 'CUSTOMER';
   const isAdmin = user?.role === 'PLATFORM_ADMIN' || user?.role === 'ADMIN';
-  const links = isAdmin ? ADMIN_NAV_ITEMS : isCustomer ? CUSTOMER_NAV_ITEMS : TRADER_NAV_ITEMS;
+  const isBusiness = user?.role === 'BUSINESS_ADMIN';
+  const links = isAdmin
+    ? ADMIN_NAV_ITEMS
+    : isBusiness
+    ? BUSINESS_NAV_ITEMS
+    : isCustomer
+    ? CUSTOMER_NAV_ITEMS
+    : TRADER_NAV_ITEMS;
   const homeHref = getDefaultRedirectForRole(user?.role);
 
   const handleLogout = async () => {
@@ -41,10 +49,11 @@ export function Sidebar({ onNavClick }: SidebarProps) {
   };
 
   const isActive = (href: string) => {
-    if (href === '/dashboard' || href === '/customer/dashboard' || href === '/admin/dashboard') {
+    if (href === '/dashboard' || href === '/customer/dashboard' || href === '/admin/dashboard' || href === '/business/dashboard') {
       return pathname === href;
     }
-    return pathname.startsWith(href);
+    const cleanHref = href.split('#')[0];
+    return pathname.startsWith(cleanHref);
   };
 
   return (
@@ -91,12 +100,14 @@ export function Sidebar({ onNavClick }: SidebarProps) {
             className={`text-[10px] font-semibold ${
               isAdmin
                 ? 'border-purple-500/30 text-purple-400 bg-purple-500/10'
+                : isBusiness
+                ? 'border-amber-500/30 text-amber-400 bg-amber-500/10'
                 : isCustomer
                 ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10'
                 : 'border-blue-500/30 text-blue-400 bg-blue-500/10'
             }`}
           >
-            {isAdmin ? 'Platform Admin' : isCustomer ? 'Customer Portal' : 'Trader Portal'}
+            {isAdmin ? 'Platform Admin' : isBusiness ? 'Business Admin' : isCustomer ? 'Customer Portal' : 'Trader Portal'}
           </Badge>
         </div>
       )}

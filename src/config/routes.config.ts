@@ -10,13 +10,14 @@ import {
   Users,
 } from "lucide-react";
 
-export type UserRole = "TRADER" | "CUSTOMER" | "PLATFORM_ADMIN" | "ADMIN";
+export type UserRole = "TRADER" | "CUSTOMER" | "PLATFORM_ADMIN" | "ADMIN" | "BUSINESS_ADMIN";
 
 export const ROLES = {
   TRADER: "TRADER" as UserRole,
   CUSTOMER: "CUSTOMER" as UserRole,
   PLATFORM_ADMIN: "PLATFORM_ADMIN" as UserRole,
   ADMIN: "ADMIN" as UserRole,
+  BUSINESS_ADMIN: "BUSINESS_ADMIN" as UserRole,
 } as const;
 
 export interface NavItem {
@@ -36,6 +37,15 @@ export interface RouteMeta {
 export const TRADER_DEFAULT_ROUTE = "/dashboard";
 export const CUSTOMER_DEFAULT_ROUTE = "/customer/dashboard";
 export const ADMIN_DEFAULT_ROUTE = "/admin/dashboard";
+export const BUSINESS_DEFAULT_ROUTE = "/business/dashboard";
+
+// Business Admin-specific navigation links
+export const BUSINESS_NAV_ITEMS: NavItem[] = [
+  { label: "Agency Dashboard", href: "/business/dashboard", icon: LayoutDashboard, roles: ["BUSINESS_ADMIN"] },
+  { label: "Team Member Roster", href: "/business/dashboard#roster", icon: Users, roles: ["BUSINESS_ADMIN"] },
+  { label: "Schedule & Buffer Gap", href: "/business/dashboard#schedule", icon: Calendar, roles: ["BUSINESS_ADMIN"] },
+  { label: "Stripe Payouts", href: "/business/dashboard#payouts", icon: CreditCard, roles: ["BUSINESS_ADMIN"] },
+];
 
 // Platform Admin-specific navigation links
 export const ADMIN_NAV_ITEMS: NavItem[] = [
@@ -67,6 +77,14 @@ export const ADMIN_ROUTES = [
   "/admin/traders",
   "/admin/bookings",
   "/admin/revenue",
+];
+
+export const BUSINESS_ROUTES = [
+  "/business",
+  "/business/dashboard",
+  "/business/team",
+  "/business/bookings",
+  "/business/payouts",
 ];
 
 export const TRADER_ROUTES = [
@@ -122,6 +140,11 @@ export const ROUTE_CONFIG: Record<string, RouteMeta> = {
     breadcrumbs: ["Home", "Admin", "Revenue Audit"],
     allowedRoles: ["PLATFORM_ADMIN", "ADMIN"],
   },
+  "/business/dashboard": {
+    title: "Business Executive Dashboard",
+    breadcrumbs: ["Home", "Business", "Dashboard"],
+    allowedRoles: ["BUSINESS_ADMIN"],
+  },
   "/dashboard": {
     title: "Trader Overview",
     breadcrumbs: ["Home", "Dashboard", "Overview"],
@@ -172,10 +195,11 @@ export function parseUserRoleFromCookies(
       const parsed = JSON.parse(decoded);
       if (parsed?.role) {
         const r = String(parsed.role).toUpperCase();
-        if (r === "TRADER" || r === "CUSTOMER" || r === "PLATFORM_ADMIN" || r === "ADMIN") return r as UserRole;
+        if (r === "TRADER" || r === "CUSTOMER" || r === "PLATFORM_ADMIN" || r === "ADMIN" || r === "BUSINESS_ADMIN") return r as UserRole;
       }
     } catch {
       if (userCookie.toUpperCase().includes("PLATFORM_ADMIN") || userCookie.toUpperCase().includes("ADMIN")) return "PLATFORM_ADMIN";
+      if (userCookie.toUpperCase().includes("BUSINESS_ADMIN")) return "BUSINESS_ADMIN";
       if (userCookie.toUpperCase().includes("TRADER")) return "TRADER";
       if (userCookie.toUpperCase().includes("CUSTOMER")) return "CUSTOMER";
     }
@@ -190,7 +214,7 @@ export function parseUserRoleFromCookies(
           : Buffer.from(parts[1], "base64").toString("utf8");
         const payload = JSON.parse(payloadStr);
         const r = (payload.role || payload.user?.role)?.toUpperCase();
-        if (r === "TRADER" || r === "CUSTOMER" || r === "PLATFORM_ADMIN" || r === "ADMIN") return r as UserRole;
+        if (r === "TRADER" || r === "CUSTOMER" || r === "PLATFORM_ADMIN" || r === "ADMIN" || r === "BUSINESS_ADMIN") return r as UserRole;
       }
     } catch {
       // Ignore JWT parse failure
@@ -198,6 +222,13 @@ export function parseUserRoleFromCookies(
   }
 
   return null;
+}
+
+/**
+ * Check if path belongs strictly to business portal
+ */
+export function isBusinessRoute(pathname: string): boolean {
+  return pathname.startsWith("/business");
 }
 
 /**
@@ -225,7 +256,7 @@ export function isCustomerRoute(pathname: string): boolean {
  * Check if path belongs strictly to trader portal
  */
 export function isTraderRoute(pathname: string): boolean {
-  if (isCustomerRoute(pathname) || isAdminRoute(pathname)) {
+  if (isCustomerRoute(pathname) || isAdminRoute(pathname) || isBusinessRoute(pathname)) {
     return false;
   }
   return (
@@ -241,7 +272,7 @@ export function isTraderRoute(pathname: string): boolean {
  * Check if path is a protected route requiring authentication
  */
 export function isProtectedRoute(pathname: string): boolean {
-  if (isAdminRoute(pathname) || isCustomerRoute(pathname) || isTraderRoute(pathname)) {
+  if (isAdminRoute(pathname) || isCustomerRoute(pathname) || isTraderRoute(pathname) || isBusinessRoute(pathname)) {
     return true;
   }
   return SHARED_PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
@@ -256,6 +287,10 @@ export function isRouteAllowedForRole(pathname: string, role?: string | null): b
 
   if (isAdminRoute(pathname)) {
     return normalizedRole === "PLATFORM_ADMIN" || normalizedRole === "ADMIN";
+  }
+
+  if (isBusinessRoute(pathname)) {
+    return normalizedRole === "BUSINESS_ADMIN";
   }
 
   if (isCustomerRoute(pathname)) {
@@ -285,5 +320,6 @@ export function getDefaultRedirectForRole(role?: string | null): string {
   if (!role) return "/login";
   const r = role.toUpperCase();
   if (r === "PLATFORM_ADMIN" || r === "ADMIN") return ADMIN_DEFAULT_ROUTE;
+  if (r === "BUSINESS_ADMIN") return BUSINESS_DEFAULT_ROUTE;
   return r === "CUSTOMER" ? CUSTOMER_DEFAULT_ROUTE : TRADER_DEFAULT_ROUTE;
 }

@@ -25,13 +25,21 @@ export function Topbar() {
   const { user, logout } = useAuthStore();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const isCustomer = user?.role === 'CUSTOMER';
+  const isAdmin = user?.role === 'PLATFORM_ADMIN' || user?.role === 'ADMIN';
+  const isBusiness = user?.role === 'BUSINESS_ADMIN';
+  const homeHref = getDefaultRedirectForRole(user?.role);
+
   const routeInfo = ROUTE_CONFIG[pathname] || {
-    title: pathname.includes('/customer') ? 'Customer Portal' : 'Trader Dashboard',
+    title: pathname.includes('/business')
+      ? 'Business Dashboard'
+      : pathname.includes('/admin')
+      ? 'Platform Admin Dashboard'
+      : pathname.includes('/customer')
+      ? 'Customer Portal'
+      : 'Trader Dashboard',
     breadcrumbs: ['Home', pathname.split('/')[1] || 'Dashboard'],
   };
-
-  const isCustomer = user?.role === 'CUSTOMER';
-  const homeHref = getDefaultRedirectForRole(user?.role);
 
   const handleLogout = async () => {
     await logout();
@@ -79,12 +87,16 @@ export function Topbar() {
             <Badge
               variant="outline"
               className={`hidden sm:inline-flex text-[10px] font-semibold tracking-wider uppercase ${
-                isCustomer
+                isAdmin
+                  ? 'border-purple-500/30 text-purple-400 bg-purple-500/10'
+                  : isBusiness
+                  ? 'border-amber-500/30 text-amber-400 bg-amber-500/10'
+                  : isCustomer
                   ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10'
                   : 'border-blue-500/30 text-blue-400 bg-blue-500/10'
               }`}
             >
-              {isCustomer ? 'Customer' : 'Trader'}
+              {isAdmin ? 'Admin' : isBusiness ? 'Business Admin' : isCustomer ? 'Customer' : 'Trader'}
             </Badge>
           )}
 

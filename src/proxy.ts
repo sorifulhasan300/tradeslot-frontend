@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 import {
   parseUserRoleFromCookies,
   isAdminRoute,
+  isBusinessRoute,
   isTraderRoute,
   isCustomerRoute,
   isProtectedRoute,
@@ -42,12 +43,12 @@ export function proxy(request: NextRequest) {
   // 3. Handle explicit role path aliases
   if (isAuthenticated && userRole) {
     if (pathname === '/dashboard/trader' || pathname === '/dashboard/trader/') {
-      const target = userRole === 'TRADER' ? '/dashboard' : '/customer/dashboard';
+      const target = userRole === 'TRADER' ? '/dashboard' : getDefaultRedirectForRole(userRole);
       return NextResponse.redirect(new URL(target, request.url));
     }
 
     if (pathname === '/dashboard/customer' || pathname === '/dashboard/customer/') {
-      const target = userRole === 'CUSTOMER' ? '/customer/dashboard' : '/dashboard';
+      const target = userRole === 'CUSTOMER' ? '/customer/dashboard' : getDefaultRedirectForRole(userRole);
       return NextResponse.redirect(new URL(target, request.url));
     }
   }
@@ -56,6 +57,12 @@ export function proxy(request: NextRequest) {
   if (isAuthenticated && userRole) {
     // If non-admin attempts to access an ADMIN route -> Redirect immediately to their default dashboard
     if (isAdminRoute(pathname) && userRole !== 'PLATFORM_ADMIN' && userRole !== 'ADMIN') {
+      const target = getDefaultRedirectForRole(userRole);
+      return NextResponse.redirect(new URL(target, request.url));
+    }
+
+    // If non-business-admin attempts to access a BUSINESS route -> Redirect to their default dashboard
+    if (isBusinessRoute(pathname) && userRole !== 'BUSINESS_ADMIN') {
       const target = getDefaultRedirectForRole(userRole);
       return NextResponse.redirect(new URL(target, request.url));
     }
@@ -87,6 +94,7 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/admin/:path*',
+    '/business/:path*',
     '/dashboard/:path*',
     '/customer/:path*',
     '/trader/:path*',
