@@ -45,7 +45,6 @@ export const BUSINESS_NAV_ITEMS: NavItem[] = [
   { label: "Agency Dashboard", href: "/business/dashboard", icon: LayoutDashboard, roles: ["BUSINESS_ADMIN"] },
   { label: "Team Member Roster", href: "/business/roster", icon: Users, roles: ["BUSINESS_ADMIN"] },
   { label: "Schedule & Buffer Gap", href: "/business/bookings", icon: Calendar, roles: ["BUSINESS_ADMIN"] },
-  { label: "Stripe Payouts", href: "/business/payouts", icon: CreditCard, roles: ["BUSINESS_ADMIN"] },
 ];
 
 // Platform Admin-specific navigation links
