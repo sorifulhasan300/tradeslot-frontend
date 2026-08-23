@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import {
   TRADER_NAV_ITEMS,
   CUSTOMER_NAV_ITEMS,
+  ADMIN_NAV_ITEMS,
   getDefaultRedirectForRole,
 } from '@/config/routes.config';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +31,8 @@ export function Sidebar({ onNavClick }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const isCustomer = user?.role === 'CUSTOMER';
-  const links = isCustomer ? CUSTOMER_NAV_ITEMS : TRADER_NAV_ITEMS;
+  const isAdmin = user?.role === 'PLATFORM_ADMIN' || user?.role === 'ADMIN';
+  const links = isAdmin ? ADMIN_NAV_ITEMS : isCustomer ? CUSTOMER_NAV_ITEMS : TRADER_NAV_ITEMS;
   const homeHref = getDefaultRedirectForRole(user?.role);
 
   const handleLogout = async () => {
@@ -39,7 +41,7 @@ export function Sidebar({ onNavClick }: SidebarProps) {
   };
 
   const isActive = (href: string) => {
-    if (href === '/dashboard' || href === '/customer/dashboard') {
+    if (href === '/dashboard' || href === '/customer/dashboard' || href === '/admin/dashboard') {
       return pathname === href;
     }
     return pathname.startsWith(href);
@@ -87,12 +89,14 @@ export function Sidebar({ onNavClick }: SidebarProps) {
           <Badge
             variant="outline"
             className={`text-[10px] font-semibold ${
-              isCustomer
+              isAdmin
+                ? 'border-purple-500/30 text-purple-400 bg-purple-500/10'
+                : isCustomer
                 ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10'
                 : 'border-blue-500/30 text-blue-400 bg-blue-500/10'
             }`}
           >
-            {isCustomer ? 'Customer Portal' : 'Trader Portal'}
+            {isAdmin ? 'Platform Admin' : isCustomer ? 'Customer Portal' : 'Trader Portal'}
           </Badge>
         </div>
       )}

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import {
   parseUserRoleFromCookies,
+  isAdminRoute,
   isTraderRoute,
   isCustomerRoute,
   isProtectedRoute,
@@ -53,6 +54,12 @@ export function proxy(request: NextRequest) {
 
   // 4. Role-based Access Control (RBAC Gatekeeper)
   if (isAuthenticated && userRole) {
+    // If non-admin attempts to access an ADMIN route -> Redirect immediately to their default dashboard
+    if (isAdminRoute(pathname) && userRole !== 'PLATFORM_ADMIN' && userRole !== 'ADMIN') {
+      const target = getDefaultRedirectForRole(userRole);
+      return NextResponse.redirect(new URL(target, request.url));
+    }
+
     // If CUSTOMER attempts to access a TRADER route -> Redirect immediately to Customer Dashboard
     if (isTraderRoute(pathname) && userRole === 'CUSTOMER') {
       return NextResponse.redirect(new URL('/customer/dashboard', request.url));
@@ -79,6 +86,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/admin/:path*',
     '/dashboard/:path*',
     '/customer/:path*',
     '/trader/:path*',
