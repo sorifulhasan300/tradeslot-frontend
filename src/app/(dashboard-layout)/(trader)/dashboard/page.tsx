@@ -79,7 +79,7 @@ export default async function TraderDashboardPage() {
       {/* Stats Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Total Bookings Card */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm hover:border-primary/40 transition-all shadow-sm">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground">Total Bookings</p>
@@ -98,7 +98,7 @@ export default async function TraderDashboardPage() {
         </Card>
 
         {/* Active Radius Card */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm hover:border-primary/40 transition-all shadow-sm">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground">Active Work Radius</p>
@@ -118,7 +118,7 @@ export default async function TraderDashboardPage() {
         </Card>
 
         {/* Stripe Payout Status Card */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm hover:border-primary/40 transition-all shadow-sm">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground">Stripe Payout Status</p>

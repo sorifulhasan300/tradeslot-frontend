@@ -92,7 +92,7 @@ export function StripeConnectCard({ traderId, initialAccountStatus }: StripeConn
   const chargesEnabled = accountStatus?.chargesEnabled || false;
 
   return (
-    <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-xl shadow-black/5 overflow-hidden">
+    <Card className="glass-card glass-card-hover overflow-hidden">
       <div className="h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500" />
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
@@ -128,7 +128,7 @@ export function StripeConnectCard({ traderId, initialAccountStatus }: StripeConn
       </CardHeader>
 
       <CardContent>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-border/40 bg-muted/20">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Account ID:</span>

@@ -384,7 +384,7 @@ export default function CustomerTraderBookingPage() {
       </div>
 
       {/* Trader Summary Header Card */}
-      <Card className="border-border/50 bg-gradient-to-r from-card/80 via-card/60 to-background/80 backdrop-blur-md shadow-lg overflow-hidden">
+      <Card className="glass-card overflow-hidden">
         <CardContent className="p-6">
           {isLoadingTraders ? (
             <div className="flex items-center gap-4">
@@ -460,7 +460,7 @@ export default function CustomerTraderBookingPage() {
         <div className="md:col-span-2 space-y-6">
           {!clientSecret ? (
             /* STEP 1: Customer Booking Form & Slot Selection */
-            <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-xl">
+            <Card className="glass-card">
               <CardHeader className="pb-3 border-b border-border/40">
                 <CardTitle className="text-lg font-bold flex items-center gap-2">
                   <CalendarIcon className="h-5 w-5 text-primary" />
@@ -533,10 +533,10 @@ export default function CustomerTraderBookingPage() {
                               key={index}
                               type="button"
                               onClick={() => setSelectedSlot(slot)}
-                              className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between relative overflow-hidden ${
+                              className={`p-3.5 rounded-xl text-left transition-all duration-200 flex flex-col justify-between relative overflow-hidden cursor-pointer active:scale-[0.98] ${
                                 isSelected
-                                  ? "border-primary bg-primary/15 text-foreground ring-2 ring-primary/40 shadow-md"
-                                  : "border-border/50 bg-background/40 hover:border-primary/40 text-foreground/90"
+                                  ? "glow-border bg-primary/15 border-primary ring-2 ring-primary/40 shadow-lg shadow-primary/10 -translate-y-0.5"
+                                  : "glass-card glass-card-hover text-foreground/90"
                               }`}
                             >
                               <div className="flex items-center justify-between">
@@ -544,7 +544,7 @@ export default function CustomerTraderBookingPage() {
                                   {startStr} - {endStr}
                                 </span>
                                 {isSelected ? (
-                                  <span className="h-5 w-5 rounded-full bg-primary flex items-center justify-center">
+                                  <span className="h-5 w-5 rounded-full bg-primary flex items-center justify-center animate-in zoom-in-50 duration-150">
                                     <Check className="h-3 w-3 text-primary-foreground stroke-[3]" />
                                   </span>
                                 ) : (
@@ -557,7 +557,7 @@ export default function CustomerTraderBookingPage() {
                                 )}
                               </div>
                               <div className="text-[11px] text-muted-foreground mt-1.5 flex items-center gap-1.5 font-mono">
-                                <Car className="h-3 w-3 text-blue-400 shrink-0" />
+                                <Car className="h-3 w-3 text-primary shrink-0" />
                                 <span>Buffer until {bufferStr}</span>
                               </div>
                             </button>
@@ -568,13 +568,13 @@ export default function CustomerTraderBookingPage() {
 
                     {/* Selected Slot Travel Buffer Summary Callout */}
                     {selectedSlot && (
-                      <div className="mt-3 p-3.5 rounded-xl bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-transparent border border-blue-500/20 text-xs space-y-1">
-                        <div className="flex items-center justify-between text-blue-400 font-semibold">
+                      <div className="mt-3 p-3.5 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm text-xs space-y-1 animate-in fade-in duration-200">
+                        <div className="flex items-center justify-between text-primary font-semibold">
                           <span className="flex items-center gap-1.5">
                             <Car className="h-4 w-4" /> Calculated Slot & Travel
                             Buffer
                           </span>
-                          <span className="font-mono text-[11px] bg-blue-500/20 px-2 py-0.5 rounded-md">
+                          <span className="font-mono text-[11px] bg-primary/20 px-2 py-0.5 rounded-md">
                             +30 Min Gap Guaranteed
                           </span>
                         </div>
@@ -584,7 +584,7 @@ export default function CustomerTraderBookingPage() {
                             {formatTimeStr(selectedSlot.startTime)} -{" "}
                             {formatTimeStr(selectedSlot.endTime)}
                           </span>
-                          <span className="text-indigo-300">
+                          <span className="text-primary font-medium">
                             <strong>Mandatory Buffer Gap:</strong>{" "}
                             {formatTimeStr(selectedSlot.endTime)} -{" "}
                             {getBufferEndTimeStr(selectedSlot)}
@@ -806,7 +806,7 @@ export default function CustomerTraderBookingPage() {
             </Card>
           ) : (
             /* STEP 2: Stripe Elements Deposit Payment Dialog / Checkout Card */
-            <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-xl">
+            <Card className="glass-card">
               <CardHeader className="pb-3 border-b border-border/40">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -846,7 +846,7 @@ export default function CustomerTraderBookingPage() {
 
         {/* Right Column: Order Summary & Travel Buffer Protection Card */}
         <div className="space-y-4">
-          <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-xl">
+          <Card className="glass-card">
             <CardHeader className="pb-3 border-b border-border/40">
               <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center justify-between">
                 <span>Booking Summary</span>

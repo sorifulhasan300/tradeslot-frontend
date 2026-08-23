@@ -306,7 +306,7 @@ export function TraderPayoutsOverview({
       {/* CORE REQUIREMENT 1: 3 Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: Total Net Earnings (£) */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md hover:border-primary/40 transition-all">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground">
@@ -329,7 +329,7 @@ export function TraderPayoutsOverview({
         </Card>
 
         {/* Card 2: Stripe Express Account Status */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md hover:border-primary/40 transition-all">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground">
@@ -362,7 +362,7 @@ export function TraderPayoutsOverview({
         </Card>
 
         {/* Card 3: Completed Payout Transfers */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md hover:border-primary/40 transition-all">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground">
@@ -386,7 +386,7 @@ export function TraderPayoutsOverview({
       </div>
 
       {/* STRIPE EXPRESS ACCOUNT DETAIL CARD */}
-      <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-lg overflow-hidden">
+      <Card className="glass-card overflow-hidden">
         <div className="h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500" />
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -496,7 +496,7 @@ export function TraderPayoutsOverview({
       </Card>
 
       {/* CORE REQUIREMENT 3: TRANSACTION HISTORY LIST / TABLE */}
-      <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-xl">
+      <Card className="glass-card">
         <CardHeader className="pb-4 border-b border-border/40">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">

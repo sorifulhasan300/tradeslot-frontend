@@ -341,7 +341,7 @@ export function CustomerDashboard({
       {/* Requirement 2: Overview Metrics (3 Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: Total Bookings */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
               <Calendar className="h-6 w-6" />
@@ -361,7 +361,7 @@ export function CustomerDashboard({
         </Card>
 
         {/* Card 2: Active / Confirmed Appointments */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               <Clock3 className="h-6 w-6" />
@@ -381,7 +381,7 @@ export function CustomerDashboard({
         </Card>
 
         {/* Card 3: Total Deposit Paid (£) */}
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-md">
+        <Card className="glass-card glass-card-hover">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
               <Wallet className="h-6 w-6" />
@@ -402,7 +402,7 @@ export function CustomerDashboard({
       </div>
 
       {/* Main Content Area: Booked Slots & Payment History */}
-      <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-xl">
+      <Card className="glass-card">
         <CardHeader className="pb-4 border-b border-border/40">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
@@ -535,7 +535,7 @@ export function CustomerDashboard({
                 return (
                   <div
                     key={booking.id}
-                    className="p-4 sm:p-5 rounded-xl border border-border/50 bg-background/40 hover:bg-background/70 transition-all shadow-sm space-y-3"
+                    className="p-4 sm:p-5 rounded-xl glass-card glass-card-hover space-y-3"
                   >
                     {/* Top Row: Service Description, Status & Payment Status */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/30 pb-3">

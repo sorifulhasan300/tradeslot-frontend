@@ -196,7 +196,7 @@ export function BookingScheduleList({
   };
 
   return (
-    <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-xl shadow-black/5">
+    <Card className="glass-card">
       <CardHeader className="pb-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
@@ -277,7 +277,7 @@ export function BookingScheduleList({
             {filteredBookings.map((booking) => (
               <div key={booking.id} className="group relative space-y-2">
                 {/* Main Booking Row Card */}
-                <div className="p-4 rounded-xl border border-border/50 bg-background/40 hover:bg-background/70 transition-all shadow-sm">
+                <div className="p-4 rounded-xl glass-card glass-card-hover">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                     <div className="space-y-1.5 flex-1">
                       <div className="flex items-center gap-2">
