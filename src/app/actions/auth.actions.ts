@@ -243,6 +243,57 @@ export async function verifyOtpAction(payload: VerifyOtpSchemaType): Promise<Api
   }
 }
 
+export async function resendOtpAction(email: string): Promise<ApiResponse<null>> {
+  try {
+    if (!email) {
+      return {
+        success: false,
+        statusCode: 400,
+        message: 'Email address is required to resend OTP code.',
+      };
+    }
+
+    const res = await fetch(`${BACKEND_URL}/auth/resend-otp`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': CLIENT_ORIGIN,
+      },
+      body: JSON.stringify({ email }),
+      cache: 'no-store',
+    });
+
+    const responseText = await res.text();
+    let data: any = {};
+    try {
+      data = responseText ? JSON.parse(responseText) : {};
+    } catch {
+      data = {};
+    }
+
+    if (!res.ok || (data.success === false && !data.data)) {
+      return {
+        success: false,
+        statusCode: res.status || 400,
+        message: data.message || data.error?.message || 'Failed to resend verification OTP.',
+      };
+    }
+
+    return {
+      success: true,
+      statusCode: 200,
+      message: data.message || 'A fresh verification OTP has been sent to your email.',
+      data: null,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      statusCode: 500,
+      message: error?.message || 'Server error resending OTP code.',
+    };
+  }
+}
+
 export async function logoutAction(): Promise<ApiResponse<null>> {
   try {
     const cookieStore = await cookies();

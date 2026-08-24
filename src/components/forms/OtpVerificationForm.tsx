@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { KeyRound, Mail, Loader2, CheckCircle2, RotateCcw, AlertCircle } from 'lucide-react';
 import { verifyOtpSchema, VerifyOtpSchemaType } from '@/lib/validations/auth.schema';
-import { verifyOtpAction } from '@/app/actions/auth.actions';
+import { verifyOtpAction, resendOtpAction } from '@/app/actions/auth.actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -62,10 +62,19 @@ export function OtpVerificationForm({ email, onSuccess }: OtpVerificationFormPro
   };
 
   const handleResend = () => {
-    if (resendCooldown > 0) return;
-    setResendCooldown(60);
-    toast.success('OTP Resent', {
-      description: 'A new 6-digit verification code has been dispatched.',
+    if (resendCooldown > 0 || isPending) return;
+    startTransition(async () => {
+      const res = await resendOtpAction(email);
+      if (res.success) {
+        setResendCooldown(60);
+        toast.success('OTP Resent', {
+          description: res.message || 'A new 6-digit verification code has been dispatched.',
+        });
+      } else {
+        toast.error('Resend Failed', {
+          description: res.message || 'Failed to send verification code. Please check your network and credentials.',
+        });
+      }
     });
   };
 

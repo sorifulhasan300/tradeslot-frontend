@@ -128,6 +128,16 @@ export const PUBLIC_VERIFY_ROUTES = [
 
 // Centralized route metadata and permissions
 export const ROUTE_CONFIG: Record<string, RouteMeta> = {
+  "/stripe/return": {
+    title: "Stripe Connect Onboarding Success",
+    breadcrumbs: ["Home", "Stripe", "Return"],
+    allowedRoles: ["TRADER", "CUSTOMER", "PLATFORM_ADMIN", "ADMIN", "BUSINESS_ADMIN"],
+  },
+  "/stripe/refresh": {
+    title: "Stripe Connect Onboarding Refresh",
+    breadcrumbs: ["Home", "Stripe", "Refresh"],
+    allowedRoles: ["TRADER", "CUSTOMER", "PLATFORM_ADMIN", "ADMIN", "BUSINESS_ADMIN"],
+  },
   "/verify-email": {
     title: "Verify Email Address",
     breadcrumbs: ["Home", "Verify Email"],
