@@ -3,7 +3,7 @@
 > **TradeSlot** is a modern, high-performance web platform for tradespeople to manage daily work zones, receive bookings through multiple intake channels (WhatsApp, Web Chatbot), schedule jobs with automated travel-time buffers, and collect payments via Stripe Connect.
 
 ---
-Backend Repository Link - https://github.com/sorifulhasan300/tradeslot-frontend
+Backend Repository Link - https://github.com/sorifulhasan300/tradesolt-backend
 
 ---
 
