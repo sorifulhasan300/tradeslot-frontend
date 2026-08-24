@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import Link from 'next/link';
 import {
   User as UserIcon,
   Mail,
@@ -17,6 +18,8 @@ import {
   Briefcase,
   UserCheck,
   AlertCircle,
+  Sparkles,
+  ArrowRight,
 } from 'lucide-react';
 import { registerSchema, RegisterSchemaType } from '@/lib/validations/auth.schema';
 import { registerAction } from '@/app/actions/auth.actions';
@@ -109,6 +112,20 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      {/* Demo Sign-In Quick Notice */}
+      <div className="p-3.5 rounded-xl bg-primary/10 border border-primary/25 text-xs text-foreground flex items-start gap-2.5 shadow-sm">
+        <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <p className="font-semibold text-primary">Testing TradeSlot?</p>
+          <p className="text-muted-foreground text-[11px] leading-relaxed">
+            Instant 1-click Demo Accounts for Customer, Trader, Business & Super Admin are ready on the{' '}
+            <Link href="/login" className="font-bold text-primary hover:underline inline-flex items-center gap-0.5">
+              Sign In page <ArrowRight className="h-3 w-3 inline" />
+            </Link>
+          </p>
+        </div>
+      </div>
+
       {formError && (
         <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm flex items-center gap-2">
           <AlertCircle className="h-4 w-4 shrink-0" />

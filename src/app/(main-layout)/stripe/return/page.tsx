@@ -52,19 +52,17 @@ export default function StripeReturnPage() {
   useEffect(() => {
     if (isPaused) return;
 
+    if (countdown <= 0) {
+      router.push("/dashboard");
+      return;
+    }
+
     const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          router.push("/dashboard");
-          return 0;
-        }
-        return prev - 1;
-      });
+      setCountdown((prev) => prev - 1);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isPaused, router]);
+  }, [countdown, isPaused, router]);
 
   const handleOpenStripeDashboard = async () => {
     try {
