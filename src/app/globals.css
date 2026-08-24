@@ -138,6 +138,15 @@
   }
 }
 
+@layer components {
+  button:not(:disabled), .btn:not(:disabled) {
+    @apply cursor-pointer transition-all duration-200 active:scale-[0.97];
+  }
+  button:hover:not(:disabled) {
+    box-shadow: 0 4px 15px -3px var(--primary-glow);
+  }
+}
+
 .glass-card {
   background-color: var(--card);
   backdrop-filter: blur(12px);

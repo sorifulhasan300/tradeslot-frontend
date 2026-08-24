@@ -167,7 +167,7 @@ export function Header() {
           {/* Mobile Drawer Trigger */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger
-              className="md:hidden flex h-9 w-9 items-center justify-center rounded-lg border border-border/50 text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer transition-colors"
+              className="md:hidden flex h-9 w-9 items-center justify-center rounded-lg border border-border/50 text-muted-foreground hover:text-primary hover:bg-primary/10 cursor-pointer transition-colors"
               aria-label="Toggle Mobile Navigation"
             >
               <Menu className="h-5 w-5" />

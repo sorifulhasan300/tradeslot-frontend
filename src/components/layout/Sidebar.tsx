@@ -126,7 +126,7 @@ export function Sidebar({ onNavClick }: SidebarProps) {
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
                 active
                   ? 'bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20'
-                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                  : 'text-muted-foreground hover:bg-primary/10 hover:text-primary'
               } ${isCollapsed ? 'justify-center px-0' : ''}`}
               title={isCollapsed ? item.label : undefined}
             >

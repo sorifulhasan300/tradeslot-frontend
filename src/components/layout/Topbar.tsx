@@ -1,14 +1,17 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/useAuthStore';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { ThemeToggle } from '@/components/shared/ThemeToggle';
-import { ROUTE_CONFIG, getDefaultRedirectForRole } from '@/config/routes.config';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import React, { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import {
+  ROUTE_CONFIG,
+  getDefaultRedirectForRole,
+} from "@/config/routes.config";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,8 +19,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Menu, Bell, ChevronRight, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck } from 'lucide-react';
+} from "@/components/ui/dropdown-menu";
+import {
+  Menu,
+  Bell,
+  ChevronRight,
+  User as UserIcon,
+  LogOut,
+  LayoutDashboard,
+  ShieldCheck,
+} from "lucide-react";
 
 export function Topbar() {
   const pathname = usePathname();
@@ -25,25 +36,25 @@ export function Topbar() {
   const { user, logout } = useAuthStore();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const isCustomer = user?.role === 'CUSTOMER';
-  const isAdmin = user?.role === 'PLATFORM_ADMIN' || user?.role === 'ADMIN';
-  const isBusiness = user?.role === 'BUSINESS_ADMIN';
+  const isCustomer = user?.role === "CUSTOMER";
+  const isAdmin = user?.role === "PLATFORM_ADMIN" || user?.role === "ADMIN";
+  const isBusiness = user?.role === "BUSINESS_ADMIN";
   const homeHref = getDefaultRedirectForRole(user?.role);
 
   const routeInfo = ROUTE_CONFIG[pathname] || {
-    title: pathname.includes('/business')
-      ? 'Business Dashboard'
-      : pathname.includes('/admin')
-      ? 'Platform Admin Dashboard'
-      : pathname.includes('/customer')
-      ? 'Customer Portal'
-      : 'Trader Dashboard',
-    breadcrumbs: ['Home', pathname.split('/')[1] || 'Dashboard'],
+    title: pathname.includes("/business")
+      ? "Business Dashboard"
+      : pathname.includes("/admin")
+        ? "Platform Admin Dashboard"
+        : pathname.includes("/customer")
+          ? "Customer Portal"
+          : "Trader Dashboard",
+    breadcrumbs: ["Home", pathname.split("/")[1] || "Dashboard"],
   };
 
   const handleLogout = async () => {
     await logout();
-    window.location.href = '/login';
+    window.location.href = "/login";
   };
 
   return (
@@ -59,7 +70,10 @@ export function Topbar() {
             >
               <Menu className="h-5 w-5" />
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64 border-r border-border/40">
+            <SheetContent
+              side="left"
+              className="p-0 w-64 border-r border-border/40"
+            >
               <Sidebar onNavClick={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
@@ -69,14 +83,24 @@ export function Topbar() {
             <nav className="flex items-center gap-1 text-[11px] text-muted-foreground font-medium mb-0.5">
               {routeInfo.breadcrumbs.map((crumb, idx) => (
                 <React.Fragment key={idx}>
-                  {idx > 0 && <ChevronRight className="h-3 w-3 text-muted-foreground/60" />}
-                  <span className={idx === routeInfo.breadcrumbs.length - 1 ? 'text-foreground font-semibold' : ''}>
+                  {idx > 0 && (
+                    <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
+                  )}
+                  <span
+                    className={
+                      idx === routeInfo.breadcrumbs.length - 1
+                        ? "text-foreground font-semibold"
+                        : ""
+                    }
+                  >
                     {crumb}
                   </span>
                 </React.Fragment>
               ))}
             </nav>
-            <h1 className="text-base sm:text-lg font-bold tracking-tight text-foreground">{routeInfo.title}</h1>
+            <h1 className="text-base sm:text-lg font-bold tracking-tight text-foreground">
+              {routeInfo.title}
+            </h1>
           </div>
         </div>
 
@@ -88,15 +112,21 @@ export function Topbar() {
               variant="outline"
               className={`hidden sm:inline-flex text-[10px] font-semibold tracking-wider uppercase ${
                 isAdmin
-                  ? 'border-purple-500/30 text-purple-400 bg-purple-500/10'
+                  ? "border-purple-500/30 text-purple-400 bg-purple-500/10"
                   : isBusiness
-                  ? 'border-amber-500/30 text-amber-400 bg-amber-500/10'
-                  : isCustomer
-                  ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10'
-                  : 'border-blue-500/30 text-blue-400 bg-blue-500/10'
+                    ? "border-amber-500/30 text-amber-400 bg-amber-500/10"
+                    : isCustomer
+                      ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
+                      : "border-blue-500/30 text-blue-400 bg-blue-500/10"
               }`}
             >
-              {isAdmin ? 'Admin' : isBusiness ? 'Business Admin' : isCustomer ? 'Customer' : 'Trader'}
+              {isAdmin
+                ? "Admin"
+                : isBusiness
+                  ? "Business Admin"
+                  : isCustomer
+                    ? "Customer"
+                    : "Trader"}
             </Badge>
           )}
 
@@ -117,22 +147,35 @@ export function Topbar() {
           {/* User Avatar Dropdown */}
           {user && (
             <DropdownMenu>
-              <DropdownMenuTrigger className="relative h-9 px-2 flex items-center gap-2 rounded-lg hover:bg-accent cursor-pointer">
+              <DropdownMenuTrigger className="relative h-9 px-2 flex items-center gap-2 rounded-lg  cursor-pointer">
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs border border-primary/20">
-                  {user.name ? user.name.charAt(0).toUpperCase() : <UserIcon className="h-3.5 w-3.5" />}
+                  {user.name ? (
+                    user.name.charAt(0).toUpperCase()
+                  ) : (
+                    <UserIcon className="h-3.5 w-3.5" />
+                  )}
                 </div>
                 <span className="hidden md:inline-block text-xs font-semibold text-foreground max-w-[120px] truncate">
                   {user.name}
                 </span>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-card border-border/50 shadow-xl">
+              <DropdownMenuContent
+                align="end"
+                className="w-56 bg-card border-border/50 shadow-xl"
+              >
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-xs font-bold text-foreground leading-none">{user.name}</p>
-                    <p className="text-[11px] text-muted-foreground leading-none truncate">{user.email}</p>
+                    <p className="text-xs font-bold text-foreground leading-none">
+                      {user.name}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground leading-none truncate">
+                      {user.email}
+                    </p>
                     <div className="pt-1.5 flex items-center gap-1.5">
                       <ShieldCheck className="h-3 w-3 text-primary" />
-                      <span className="text-[10px] text-primary font-semibold uppercase">{user.role} Account</span>
+                      <span className="text-[10px] text-primary font-semibold uppercase">
+                        {user.role} Account
+                      </span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
@@ -145,7 +188,10 @@ export function Topbar() {
                   Dashboard Overview
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-xs text-destructive focus:text-destructive">
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer text-xs text-destructive focus:text-destructive"
+                >
                   <LogOut className="h-3.5 w-3.5 mr-2" />
                   Sign Out
                 </DropdownMenuItem>
