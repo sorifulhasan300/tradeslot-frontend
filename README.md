@@ -3,6 +3,9 @@
 > **TradeSlot** is a modern, high-performance web platform for tradespeople to manage daily work zones, receive bookings through multiple intake channels (WhatsApp, Web Chatbot), schedule jobs with automated travel-time buffers, and collect payments via Stripe Connect.
 
 ---
+Backend Repository Link - https://github.com/sorifulhasan300/tradeslot-frontend
+
+---
 
 ## ⚡ Quick Overview
 
@@ -47,7 +50,7 @@ At a glance, the TradeSlot Frontend provides a **role-aware, glassmorphic web po
 | **Language** | [TypeScript 5](https://www.typescriptlang.org/) |
 | **UI Library** | [React 19](https://react.dev/) |
 | **Styling** | [TailwindCSS v4](https://tailwindcss.com/) + Vanilla CSS design tokens (`globals.css`) |
-| **State Management** | [Zustand](https://zustand-demo.pmnd.rs/) + [TanStack Query v5](https://tanstack.com/query) |
+| **State Management** | [Zustand](https://zustand-demo.pmnd.rs/) + [TanStack Query v5](https://tanstack.com/query) |a
 | **Form & Validation** | [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) |
 | **Icons & UI Primitives** | [Lucide React](https://lucide.dev/), [Shadcn UI](https://ui.shadcn.com/), [Base UI](https://base-ui.com/) |
 | **Notifications & Loaders** | [Sonner](https://sonner.emilkowal.ski/), `nextjs-toploader` |
