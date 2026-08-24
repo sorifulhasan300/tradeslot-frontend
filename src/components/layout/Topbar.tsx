@@ -30,10 +30,17 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-export function Topbar() {
+import { User } from "@/types/auth.types";
+
+interface TopbarProps {
+  initialUser?: User | null;
+}
+
+export function Topbar({ initialUser }: TopbarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user: storeUser, logout } = useAuthStore();
+  const user = storeUser || initialUser;
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isCustomer = user?.role === "CUSTOMER";
@@ -74,7 +81,7 @@ export function Topbar() {
               side="left"
               className="p-0 w-64 border-r border-border/40"
             >
-              <Sidebar onNavClick={() => setMobileOpen(false)} />
+              <Sidebar initialUser={user} onNavClick={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
 

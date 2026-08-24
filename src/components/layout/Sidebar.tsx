@@ -21,14 +21,18 @@ import {
   Wrench,
 } from 'lucide-react';
 
+import { User } from '@/types/auth.types';
+
 interface SidebarProps {
+  initialUser?: User | null;
   onNavClick?: () => void;
 }
 
-export function Sidebar({ onNavClick }: SidebarProps) {
+export function Sidebar({ initialUser, onNavClick }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user: storeUser, logout } = useAuthStore();
+  const user = storeUser || initialUser;
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const isCustomer = user?.role === 'CUSTOMER';

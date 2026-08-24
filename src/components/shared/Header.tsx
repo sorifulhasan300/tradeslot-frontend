@@ -31,8 +31,16 @@ import {
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user: storeUser, isAuthenticated: storeIsAuthenticated, logout } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const user = mounted ? storeUser : null;
+  const isAuthenticated = mounted ? storeIsAuthenticated : false;
 
   // Auto-close mobile navigation drawer on route change
   useEffect(() => {

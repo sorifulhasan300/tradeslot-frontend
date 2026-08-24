@@ -12,22 +12,23 @@ interface DashboardShellProps {
 }
 
 export function DashboardShell({ initialUser, children }: DashboardShellProps) {
-  const { user, setAuth } = useAuthStore();
+  const { user: storeUser, setAuth } = useAuthStore();
+  const user = storeUser || initialUser;
 
   useEffect(() => {
-    if (initialUser && (!user || user.id !== initialUser.id || user.role !== initialUser.role)) {
+    if (initialUser && (!storeUser || storeUser.id !== initialUser.id || storeUser.role !== initialUser.role)) {
       setAuth(initialUser);
     }
-  }, [initialUser, user, setAuth]);
+  }, [initialUser, storeUser, setAuth]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <div className="hidden md:flex h-full shrink-0">
-        <Sidebar />
+        <Sidebar initialUser={user} />
       </div>
 
       <div className="flex flex-col flex-1 min-w-0 h-full overflow-hidden">
-        <Topbar />
+        <Topbar initialUser={user} />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">{children}</main>
       </div>
     </div>
