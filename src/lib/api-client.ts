@@ -15,7 +15,7 @@ const getBaseUrl = (): string => {
     return process.env.NEXT_PUBLIC_API_URL || '/api/v1';
   }
   // Server-side
-  return process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+  return process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'https://tradeslot-backend-nine.vercel.app/api/v1';
 };
 
 export const apiClient = axios.create({

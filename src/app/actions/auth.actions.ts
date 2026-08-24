@@ -5,7 +5,7 @@ import { loginSchema, registerSchema, verifyOtpSchema, LoginSchemaType, Register
 import { ApiResponse } from '@/types/api.types';
 import { AuthResponseData, User } from '@/types/auth.types';
 
-const BACKEND_URL = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const BACKEND_URL = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'https://tradeslot-backend-nine.vercel.app/api/v1';
 const CLIENT_ORIGIN = process.env.CLIENT_URL || process.env.NEXT_PUBLIC_CLIENT_URL || 'http://localhost:3000';
 
 export async function loginAction(payload: LoginSchemaType): Promise<ApiResponse<AuthResponseData>> {

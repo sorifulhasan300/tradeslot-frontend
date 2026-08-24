@@ -6,7 +6,7 @@ import { bookingRequestSchema, BookingRequestSchemaType } from '@/lib/validation
 import { ApiResponse, AvailableSlot, Booking, BookingStatus } from '@/types/api.types';
 import { GetBookingsQueryParams } from '@/services/booking.service';
 
-const BACKEND_URL = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const BACKEND_URL = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'https://tradeslot-backend-nine.vercel.app/api/v1';
 
 async function getAuthHeader(): Promise<HeadersInit> {
   const cookieStore = await cookies();
